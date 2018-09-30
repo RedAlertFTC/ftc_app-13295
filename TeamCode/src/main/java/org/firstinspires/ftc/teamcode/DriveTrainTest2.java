@@ -60,28 +60,28 @@ import com.qualcomm.robotcore.hardware.DcMotor;
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            if (-gamepad1.left_stick_y>1){
+            if (-gamepad1.left_stick_y>0){
             left=-gamepad1.left_stick_y;
             right=-gamepad1.right_stick_y;
             robot.leftDrive.setPower(left);
             robot.rightDrive.setPower(right);
             }
 
-            if (-gamepad1.left_stick_y<1){
+            if (-gamepad1.left_stick_y<0){
             left=-gamepad1.left_stick_y;
             right=-gamepad1.right_stick_y;
             robot.leftDrive.setPower(left);
             robot.rightDrive.setPower(right);
             }
 
-            if (-gamepad1.left_stick_x>1){
+            if (-gamepad1.left_stick_x>0){
             left=-gamepad1.left_stick_x;
             right=gamepad1.right_stick_x;
             robot.leftDrive.setPower(left);
             robot.rightDrive.setPower(right);
             }
 
-            if (-gamepad1.left_stick_x<1){
+            if (-gamepad1.left_stick_x<0){
             left=gamepad1.left_stick_x;
             right=-gamepad1.right_stick_x;
             robot.leftDrive.setPower(left);
