@@ -27,93 +27,60 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-//import com.qualcomm.robotcore.hardware.HardwareMap;
-//import com.qualcomm.robotcore.hardware.Servo;
-//import com.qualcomm.robotcore.util.ElapsedTime;
+
+class DriveTrainTest2 extends LinearOpMode {
 
     @Override
     public void runOpMode() {
         double left;
         double right;
-        public DcMotor  leftDrive
-        public DcMotor  rightDrive
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here */
+        DcMotor leftDrive = hardwareMap.dcMotor.get("mLeft");
+        DcMotor rightDrive = hardwareMap.dcMotor.get("mRight");
+
         leftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Set all motors to zero power
         leftDrive.setPower(0);
         rightDrive.setPower(0);
-        /* robot.init(hardwareMap);
 
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello Driver");    //
-        telemetry.update();
-
-        // Wait for the game to start (driver presses PLAY) */
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
             if (-gamepad1.left_stick_y>0){
-            left=-gamepad1.left_stick_y;
-            right=-gamepad1.right_stick_y;
-            robot.leftDrive.setPower(left);
-            robot.rightDrive.setPower(right);
+                left = -gamepad1.left_stick_y;
+                right = -gamepad1.right_stick_y;
+                leftDrive.setPower(left);
+                rightDrive.setPower(right);
             }
 
-            if (-gamepad1.left_stick_y<0){
-            left=-gamepad1.left_stick_y;
-            right=-gamepad1.right_stick_y;
-            robot.leftDrive.setPower(left);
-            robot.rightDrive.setPower(right);
+            if (gamepad1.left_stick_y>0) {
+                left = gamepad1.left_stick_y;
+                right = gamepad1.right_stick_y;
+                leftDrive.setPower(left);
+                rightDrive.setPower(right);
             }
 
             if (-gamepad1.left_stick_x>0){
-            left=-gamepad1.left_stick_x;
-            right=gamepad1.right_stick_x;
-            robot.leftDrive.setPower(left);
-            robot.rightDrive.setPower(right);
+            left = -gamepad1.left_stick_x;
+            right = gamepad1.right_stick_x;
+            leftDrive.setPower(left);
+            rightDrive.setPower(right);
             }
 
             if (-gamepad1.left_stick_x<0){
             left=gamepad1.left_stick_x;
             right=-gamepad1.right_stick_x;
-            robot.leftDrive.setPower(left);
-            robot.rightDrive.setPower(right);
+            leftDrive.setPower(left);
+            rightDrive.setPower(right);
             }
 
-
-            /*// Use gamepad Y & A raise and lower the arm
-            if (gamepad1.a)
-                armPosition += ARM_SPEED;
-            else if (gamepad1.y)
-                armPosition -= ARM_SPEED;
-
-            // Use gamepad X & B to open and close the claw
-            if (gamepad1.x)
-                clawPosition += CLAW_SPEED;
-            else if (gamepad1.b)
-                clawPosition -= CLAW_SPEED;
-
-            // Move both servos to new position.
-            armPosition  = Range.clip(armPosition, robot.ARM_MIN_RANGE, robot.ARM_MAX_RANGE);
-            robot.arm.setPosition(armPosition);
-            clawPosition = Range.clip(clawPosition, robot.CLAW_MIN_RANGE, robot.CLAW_MAX_RANGE);
-            robot.claw.setPosition(clawPosition);
-
-            // Send telemetry message to signify robot running;
-            telemetry.addData("arm",   "%.2f", armPosition);
-            telemetry.addData("claw",  "%.2f", clawPosition);
-            telemetry.addData("left",  "%.2f", left);
-            telemetry.addData("right", "%.2f", right);
-            telemetry.update();
-*/
             // Pause for 40 mS each cycle = update 25 times a second.
             sleep(40);
         }
