@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name = "DriveTrainTest_OneStick")
 class DriveTrainTest2 extends LinearOpMode {
@@ -15,8 +16,8 @@ class DriveTrainTest2 extends LinearOpMode {
         DcMotor leftDrive = hardwareMap.dcMotor.get("mLeft");
         DcMotor rightDrive = hardwareMap.dcMotor.get("mRight");
 
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
         leftDrive.setPower(0);
@@ -29,32 +30,32 @@ class DriveTrainTest2 extends LinearOpMode {
 
             if (gamepad1.left_stick_y>0){
                 left = gamepad1.left_stick_y;
-                right = gamepad1.right_stick_y;
+                right = gamepad1.left_stick_x;
                 leftDrive.setPower(left);
                 rightDrive.setPower(right);
             }
-            else{
+            /*else{
                 left = gamepad1.left_stick_y;
-                right = gamepad1.right_stick_y;
+                right = gamepad1.left_stick_x;
+                leftDrive.setPower(left);
+                rightDrive.setPower(right);
+            }*/
+
+            if (gamepad1.left_stick_x>0) {
+                left = gamepad1.left_stick_y;
+                right = -gamepad1.left_stick_x;
                 leftDrive.setPower(left);
                 rightDrive.setPower(right);
             }
-
-            if (gamepad1.left_stick_x>0){
-            left = gamepad1.left_stick_x;
-            right = -gamepad1.right_stick_x;
-            leftDrive.setPower(left);
-            rightDrive.setPower(right);
-            }
-            else{
-                left= -gamepad1.left_stick_x;
-                right= gamepad1.right_stick_x;
+            /*else{
+                left = -gamepad1.left_stick_y;
+                right = gamepad1.left_stick_x;
                 leftDrive.setPower(left);
                 rightDrive.setPower(right);
             }
 
             // Pause for 40 mS each cycle = update 25 times a second.
-            sleep(40);
+            sleep(40);*/
         }
     }
 }

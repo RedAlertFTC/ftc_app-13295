@@ -10,31 +10,22 @@ public abstract class DMRoverAbstract extends LinearOpMode {
     double left;
     double right;
 
-    volatile boolean   isStarted       = false;
-    volatile boolean   stopRequested   = false;
-
 
     DcMotor leftDrive = hardwareMap.dcMotor.get("mLeft");
     DcMotor rightDrive = hardwareMap.dcMotor.get("mRight");
-    DcMotor mineralArm = hardwareMap.dcMotor.get("mineralArm");
-    DcMotor mineralCollector = hardwareMap.dcMotor.get("boxMotor");
-    DcMotor liftArm = hardwareMap.dcMotor.get("liftArm");
-
-
-
-    public void runOpMode() {
-
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
-    }
-
-
-
-
-
+    DcMotor mineralArm = hardwareMap.dcMotor.get("mArm");
+    //DcMotor mineralBox = hardwareMap.dcMotor.get("mBox");
+    DcMotor liftArm = hardwareMap.dcMotor.get("mLift");
+    //DcMotor extensionMotor = hardwareMap.dcMotor.get("mExtend");
+    /* @Override
+    public void init() {
+         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+         mineralArm.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+         mineralBox.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+         liftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+         extensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+     }*/
 }
 
 
