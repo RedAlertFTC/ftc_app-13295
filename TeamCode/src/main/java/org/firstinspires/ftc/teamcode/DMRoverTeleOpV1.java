@@ -26,22 +26,22 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 
 
             if (gamepad2.right_bumper = true){
-                //extensionMotor.setDirection(DcMotor.Direction.FORWARD);
+                extensionMotor.setDirection(DcMotor.Direction.FORWARD);
                 mineralArm.setDirection(DcMotor.Direction.FORWARD);
-                //extensionMotor.setPower(.25);
+                extensionMotor.setPower(.25);
                 mineralArm.setPower(.5);
             } else {
-                //extensionMotor.setPower(0);
+                extensionMotor.setPower(0);
                 mineralArm.setPower(0);
             }
 
             if (gamepad2.left_bumper = true){
-                //extensionMotor.setDirection(DcMotor.Direction.REVERSE);
+                extensionMotor.setDirection(DcMotor.Direction.REVERSE);
                 mineralArm.setDirection(DcMotor.Direction.REVERSE);
-                //extensionMotor.setPower(.25);
+                extensionMotor.setPower(.25);
                 mineralArm.setPower(.5);
             } else {
-                //extensionMotor.setPower(0);
+                extensionMotor.setPower(0);
                 mineralArm.setPower(0);
             }
 
@@ -49,13 +49,13 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 
 
             while (gamepad2.b = true){
-                //mineralBox.setDirection(DcMotor.Direction.FORWARD);
-                //mineralBox.setPower(1);
+                mineralBox.setDirection(DcMotor.Direction.FORWARD);
+                mineralBox.setPower(1);
             }
 
             while (gamepad2.x = true){
-                //mineralBox.setDirection(DcMotor.Direction.REVERSE);
-                //mineralBox.setPower(1);
+                mineralBox.setDirection(DcMotor.Direction.REVERSE);
+                mineralBox.setPower(1);
             }
 
 

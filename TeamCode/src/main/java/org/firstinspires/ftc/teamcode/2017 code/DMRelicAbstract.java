@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-public abstract class DMRelicAbstract extends OpMode {
+public abstract class   DMRelicAbstract extends OpMode {
 
     protected ModernRoboticsI2cRangeSensor
             rangeSensor;
