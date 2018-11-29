@@ -48,12 +48,12 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 
 
 
-            while (gamepad2.b = true){
+            while (gamepad2.left_trigger > 0){
                 mineralBox.setDirection(DcMotor.Direction.FORWARD);
                 mineralBox.setPower(1);
             }
 
-            while (gamepad2.x = true){
+            while (gamepad2.right_trigger > 0){
                 mineralBox.setDirection(DcMotor.Direction.REVERSE);
                 mineralBox.setPower(1);
             }
@@ -61,12 +61,12 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 
 
 
-            while (gamepad2.y = true){
+            while (gamepad1.dpad_down = true){
                 liftArm.setDirection(DcMotor.Direction.FORWARD);
                 liftArm.setPower(1);
             }
 
-            while (gamepad2.a = true){
+            while (gamepad1.dpad_up = true){
                 liftArm.setDirection(DcMotor.Direction.REVERSE);
                 liftArm.setPower(1);
             }
