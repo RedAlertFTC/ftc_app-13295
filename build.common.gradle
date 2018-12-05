@@ -99,6 +99,7 @@ android {
 
 repositories {
     google()
+    jcenter()
     flatDir {
         dirs rootProject.file('libs')
     }
