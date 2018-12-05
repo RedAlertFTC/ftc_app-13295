@@ -53,7 +53,7 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 */
 
 
-            // activate extension and MCS arm
+            // Activate extension and MCS arm
             extend = gamepad2.right_stick_x;
             extensionMotor.setPower(extend);
 
@@ -62,7 +62,7 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 
 
 
-            //rotate the motor on the MCS box
+            // Rotate the motor on the MCS box
             if (gamepad2.left_trigger > 0) {
                 mineralBox.setDirection(DcMotor.Direction.FORWARD);
                 mineralBox.setPower(1);
@@ -75,7 +75,7 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract {
 
 
 
-            // activate lifting arm
+            // Activate lifting arm
             if (gamepad1.dpad_down = true) {
                 liftArm.setDirection(DcMotor.Direction.FORWARD);
                 liftArm.setPower(1);

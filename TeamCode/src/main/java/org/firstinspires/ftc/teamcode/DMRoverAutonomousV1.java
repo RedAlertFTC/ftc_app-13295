@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Autonomous(name = "DMRoverAutonomousV1")
 public class DMRoverAutonomousV1 extends DMRoverAbstract {
@@ -71,7 +73,7 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
         targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
         targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        // TODO Lower MCS arm
+        // TODO sample
 
 
         targetDrDistInch = 2;
@@ -79,12 +81,9 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
         targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
         targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        // TODO Raise MCS arm
 
 
-
-
-        //back up and drive to the depot
+        // Back up and drive to the depot
         targetDrDistInch = -2;
         targetPower = .5;
         targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
@@ -116,13 +115,21 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
 
 
 
-        // TODO Deposit marker
+        // Deposit marker by moving the MCS arm
+        mineralArm.setDirection(DcMotor.Direction.FORWARD);
+        mineralArm.setPower(1);
+        sleep(400);
+        mineralArm.setDirection(DcMotor.Direction.REVERSE);
+        sleep(400);
+        mineralArm.setPower(0);
 
 
 
-
-
-        // TODO Drive to Crater to Park
+        // Drive to Crater to Park
+        targetDrDistInch = 114;
+        targetPower = 1;
+        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
 
     }
 }
