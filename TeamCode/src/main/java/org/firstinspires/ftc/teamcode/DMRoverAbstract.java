@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public abstract class DMRoverAbstract extends LinearOpMode {
-
-    double left;
-    double right;
+public abstract class DMRoverAbstract extends OpMode {
 
     DcMotor leftDrive = hardwareMap.dcMotor.get("mLeft");
     DcMotor rightDrive = hardwareMap.dcMotor.get("mRight");
@@ -35,7 +32,7 @@ public abstract class DMRoverAbstract extends LinearOpMode {
 
         extensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extensionMotor.setDirection(DcMotor.Direction.FORWARD);
-        }
+    }
 
     public void stop() {
 
@@ -47,15 +44,56 @@ public abstract class DMRoverAbstract extends LinearOpMode {
         extensionMotor.setPower(0);
     }
 
+
+    public void loop() {
+
+    }
+
+
     int cmdMoveR(float distIn, float encoderCntPerIn, double power, DcMotor motor) {
 
         // Solve for encoder count target. (int) needed to cast result as integer
         int target = ((int) (distIn * encoderCntPerIn));// + motor.getCurrentPosition();
 
         // Set motor target and power
-        motor.setPower(power);
         motor.setTargetPosition(target);
+        motor.setPower(power);
 
         return target;
+    }
+
+
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException var4) {
+            Thread.currentThread().interrupt();
+        }
+
+    }
+
+    private volatile boolean   isStarted       = false;
+    private volatile boolean   stopRequested   = false;
+
+    public final void idle() {
+        // Otherwise, yield back our thread scheduling quantum and give other threads at
+        // our priority level a chance to run
+        Thread.yield();
+    }
+
+    public final boolean isStopRequested() {
+        return this.stopRequested || Thread.currentThread().isInterrupted();
+    }
+
+    public final boolean isStarted() {
+        return this.isStarted || Thread.currentThread().isInterrupted();
+    }
+
+    public final boolean opModeIsActive() {
+        boolean isActive = !this.isStopRequested() && this.isStarted();
+        if (isActive) {
+            idle();
+        }
+        return isActive;
     }
 }

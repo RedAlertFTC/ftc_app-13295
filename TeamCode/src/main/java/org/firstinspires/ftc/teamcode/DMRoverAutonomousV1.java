@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "DMRoverAutonomousV1")
@@ -10,13 +9,21 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
     float targetDrDistInch;
     double targetPower;
     float ENCODER_CNT_PER_IN_DRIVE = (float) (3.5*3.15159/288);
-    //Set encoder counts per inch to the wheel circumference divided by the number of counts per motor rotation
+    //Set encoder counts per inch to the wheel circumference in inches divided by the number of counts per motor rotation
     double targetPosLeft;
     double targetPosRight;
 
 
+    public void init(){
+        super.init();
+    }
+
+
+    public void loop() {
+    }
+
     /*
-    We used the cmdMoveR method to calculate a new target (in encoder
+    We used the cmdMoveR method to calculate a new distance target for our drive train (in encoder
     counts) and to begin the move to the target location.
     The cmdMoveR method uses the parameters (distance inches, encoder count per inch, power, motor)
     to calculate the number of encoder counts to turn the motor. The following lines of code are how we
@@ -27,7 +34,6 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
     */
 
 
-    @Override
     public void runOpMode() {
 
         // Lowering the robot on to the playing field
@@ -65,14 +71,15 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
         targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
         targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        //lower MCS arm
+        // TODO Lower MCS arm
+
 
         targetDrDistInch = 2;
         targetPower = .5;
         targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
         targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        //raise MCS arm
+        // TODO Raise MCS arm
 
 
 
@@ -109,13 +116,13 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
 
 
 
-        // Deposit marker
+        // TODO Deposit marker
 
 
 
 
 
-        // Drive to Crater to Park
-        
+        // TODO Drive to Crater to Park
+
     }
 }
