@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Autonomous(name = "DMRoverAutonomousV1")
-public class DMRoverAutonomousV1 extends DMRoverAbstract {
+public class DMRoverAutonomousV1 extends DMRoverAbstract
+{
 
     //Declare variables used for encoders later in the program
     float targetDrDistInch;
@@ -16,12 +16,9 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
     double targetPosRight;
 
 
-    public void init(){
+    public void init()
+    {
         super.init();
-    }
-
-
-    public void loop() {
     }
 
     /*
@@ -36,100 +33,220 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract {
     */
 
 
-    public void runOpMode() {
+    public void loop()
+    {
 
-        // Lowering the robot on to the playing field
-        liftArm.setPower(1);
-        sleep(1000);
-        liftArm.setPower(0);
+        switch(seqRobot)
+        {
 
+            case(1):
+            {
+            // Lowering the robot on to the playing field
+            liftArm.setPower(1);
+            sleep(1000);
+            liftArm.setPower(0);
 
+            seqRobot++;
+            break;
 
-        // Detach the hook on the landing arm from the lander
-        targetDrDistInch = 2;
-        targetPower = .4;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetDrDistInch = -2;
-        targetPower = .4;
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
-        targetDrDistInch = 2;
-        targetPower = .5;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
-        targetDrDistInch = -2;
-        targetPower = .4;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetDrDistInch = 2;
-        targetPower = .4;
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+            }
 
 
+            case(2):
+            {
+                // Detach the hook on the landing arm from the lander
+                targetDrDistInch = 2;
+                targetPower = .4;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetDrDistInch = -2;
+                targetPower = .4;
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        // Driving forward to the minerals and lowering MCS arm to sample the gold mineral
-        targetDrDistInch = 2;
-        targetPower = .5;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
-        // TODO sample
-
-
-        targetDrDistInch = 2;
-        targetPower = .5;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
+                seqRobot++;
+                break;
+            }
 
 
-        // Back up and drive to the depot
-        targetDrDistInch = -2;
-        targetPower = .5;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+            case (3):
+            {
+                targetDrDistInch = 2;
+                targetPower = .5;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        targetDrDistInch = -6;
-        targetPower = .4;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetDrDistInch = 6;
-        targetPower = .4;
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
-        targetDrDistInch = 48;
-        targetPower = .5;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
-        targetDrDistInch = -4;
-        targetPower = .4;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetDrDistInch = 4;
-        targetPower = .4;
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-
-        targetDrDistInch = 42;
-        targetPower = .5;
-        targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+                seqRobot++;
+                break;
+            }
 
 
+            case (4):
+            {
+                targetDrDistInch = -2;
+                targetPower = .4;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetDrDistInch = 2;
+                targetPower = .4;
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        // Deposit marker by moving the MCS arm
-        mineralArm.setDirection(DcMotor.Direction.FORWARD);
-        mineralArm.setPower(1);
-        sleep(400);
-        mineralArm.setDirection(DcMotor.Direction.REVERSE);
-        sleep(400);
-        mineralArm.setPower(0);
+                seqRobot++;
+                break;
+            }
 
 
+            case (5):
+            {
+                // Driving forward to the minerals and lowering MCS arm to sample the gold mineral
+                targetDrDistInch = 2;
+                targetPower = .5;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
-        // Drive to Crater to Park
-        targetDrDistInch = 114;
-        targetPower = 1;
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
-        targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                seqRobot++;
+                break;
+            }
 
+
+            case(6):
+            {
+                // TODO sample
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(7):
+            {
+                targetDrDistInch = 2;
+                targetPower = .5;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(8):
+            {
+                // Back up and drive to the depot
+                targetDrDistInch = -2;
+                targetPower = .5;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(9):
+            {
+                targetDrDistInch = -6;
+                targetPower = .4;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetDrDistInch = 6;
+                targetPower = .4;
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(10):
+            {
+                targetDrDistInch = 48;
+                targetPower = .5;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(11):
+            {
+                targetDrDistInch = -4;
+                targetPower = .4;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetDrDistInch = 4;
+                targetPower = .4;
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(12):
+            {
+                targetDrDistInch = 42;
+                targetPower = .5;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(13):
+            {
+                // Deposit marker by moving the MCS arm
+                mineralArm.setDirection(DcMotor.Direction.FORWARD);
+                mineralArm.setPower(1);
+                sleep(400);
+                mineralArm.setDirection(DcMotor.Direction.REVERSE);
+                sleep(400);
+                mineralArm.setPower(0);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(14):
+            {
+                // Drive to Crater to Park
+                targetDrDistInch = -9;
+                targetPower = .4;
+                targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+                targetDrDistInch = 9;
+                targetPower = .4;
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            case(15):
+            {
+                targetDrDistInch = 114;
+                targetPower = 1;
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+                targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
+
+                seqRobot++;
+                break;
+            }
+
+
+            default:
+            {
+                //print case number to screen
+                telemetry.addData("Case: ", seqRobot );
+                telemetry.update();
+                break;
+            }
+        }
+    }
+
+
+    public void stop()
+    {
+    super.stop();
     }
 }
