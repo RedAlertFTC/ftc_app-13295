@@ -46,6 +46,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
             sleep(1000);
             liftArm.setPower(0);
 
+            super.telemetry();
+
             seqRobot++;
             break;
 
@@ -62,6 +64,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .4;
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -73,6 +77,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .5;
                 targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                super.telemetry();
 
                 seqRobot++;
                 break;
@@ -88,6 +94,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .4;
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -100,6 +108,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .5;
                 targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                super.telemetry();
 
                 seqRobot++;
                 break;
@@ -122,6 +132,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -134,6 +146,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .5;
                 targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                super.telemetry();
 
                 seqRobot++;
                 break;
@@ -149,6 +163,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .4;
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -160,6 +176,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .5;
                 targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                super.telemetry();
 
                 seqRobot++;
                 break;
@@ -175,6 +193,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .4;
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -186,6 +206,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .5;
                 targetPosLeft = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
+
+                super.telemetry();
 
                 seqRobot++;
                 break;
@@ -202,6 +224,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 sleep(400);
                 mineralArm.setPower(0);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -217,6 +241,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPower = .4;
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -229,6 +255,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, rightDrive);
                 targetPosRight = cmdMoveR(targetDrDistInch, ENCODER_CNT_PER_IN_DRIVE, targetPower, leftDrive);
 
+                super.telemetry();
+
                 seqRobot++;
                 break;
             }
@@ -238,7 +266,8 @@ public class DMRoverAutonomousV1 extends DMRoverAbstract
             {
                 //print case number to screen
                 telemetry.addData("Case: ", seqRobot );
-                telemetry.update();
+                super.telemetry();
+
                 break;
             }
         }

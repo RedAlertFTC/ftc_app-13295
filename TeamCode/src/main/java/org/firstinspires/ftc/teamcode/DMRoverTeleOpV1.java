@@ -23,10 +23,7 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract
 
     public void loop()
     {
-
-        // run until the end of the match (driver presses STOP)
-
-        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
+        // Run wheels in tank mode
         left = gamepad1.left_stick_y;
         right = gamepad1.left_stick_x;
         leftDrive.setPower(left);
@@ -35,7 +32,8 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract
 
 /*
         //activate extension and MCS arm in unison
-        if (gamepad2.right_bumper = true) {
+        if (gamepad2.right_bumper)
+        {
             extensionMotor.setDirection(DcMotor.Direction.FORWARD);
             mineralArm.setDirection(DcMotor.Direction.FORWARD);
             extensionMotor.setPower(.25);
@@ -45,7 +43,8 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract
             mineralArm.setPower(0);
         }
 
-        if (gamepad2.left_bumper = true) {
+        if (gamepad2.left_bumper)
+        {
             extensionMotor.setDirection(DcMotor.Direction.REVERSE);
             mineralArm.setDirection(DcMotor.Direction.REVERSE);
             extensionMotor.setPower(.25);
@@ -94,22 +93,12 @@ public class DMRoverTeleOpV1 extends DMRoverAbstract
             liftArm.setPower(1);
         }
 
-        telemetry.addData("left motor power",leftDrive.getPower());
-        telemetry.addData("left motor encoder",leftDrive.getCurrentPosition());
-        telemetry.addData("left motor stick",gamepad1.left_stick_y);
-        telemetry.addLine();
-        telemetry.addData("right motor power",rightDrive.getPower());
-        telemetry.addData("right motor stick",gamepad1.right_stick_y);
-        telemetry.addData("right motor encoder",rightDrive.getCurrentPosition());
-        telemetry.addLine();
-        telemetry.addData("extend motor power",extensionMotor.getPower());
-        telemetry.addData("main arm motor power",mineralArm.getPower());
-        telemetry.addData("box motor power",mineralBox.getPower());
-        telemetry.addData("lift arm motor power",liftArm.getPower());
-        telemetry.update();
+        // print info to the screen (refer to abstract)
+     super.teleOpTelemetry();
+
     }
 
-
+    //stops all motors (refer to abstract)
     public void stop()
     {
         super.stop();
