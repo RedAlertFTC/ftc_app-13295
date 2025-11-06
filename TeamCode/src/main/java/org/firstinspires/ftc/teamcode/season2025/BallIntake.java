@@ -17,6 +17,7 @@ public class BallIntake
     {
         _telemetry = telemetry;
         _hardwareMap = hardwareMap;
+        init();
     }
 
     private void init()

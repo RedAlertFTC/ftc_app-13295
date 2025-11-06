@@ -212,10 +212,13 @@ public class DecodeV1Teleop extends LinearOpMode
                 _turntable.updateCurrentSlot();
             }
 
+            /*
             if (_pedroStart.getRise()){
 
                 _pedroTesting.start();
             }
+            */
+
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -236,9 +239,6 @@ public class DecodeV1Teleop extends LinearOpMode
             }
 
 
-
-
-
             telemetry.update();
         }
     }
@@ -257,17 +257,17 @@ public class DecodeV1Teleop extends LinearOpMode
             _ballIntake = new BallIntake(hardwareMap, telemetry);
         }
 
-        _pedroTesting = new PedroTesting(hardwareMap, telemetry);
+        //_pedroTesting = new PedroTesting(hardwareMap, telemetry);
 
         _driverTwoGamepad = new DisasterGamePad(gamepad2);
         _driverOneGamepad = new DisasterGamePad(gamepad1);
 
-        _decreaseLaunchPower = new DebouncedButton(_driverOneGamepad.getDpadDown());
-        _increaseLaunchPower = new DebouncedButton(_driverOneGamepad.getDpadUp());
-        _stopLauncher = new DebouncedButton(_driverOneGamepad.getDpadLeft());
-        _decreaseIndex = new DebouncedButton(_driverOneGamepad.getLeftBumper());
-        _increaseIndex = new DebouncedButton(_driverOneGamepad.getRightBumper());
+        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadDown());
+        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadUp());
+        _stopLauncher = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
+        _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
+        _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());
 
-        _pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
+        //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }
 }
