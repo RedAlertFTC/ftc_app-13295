@@ -82,6 +82,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private Turntable _turntable;
     private PedroTesting _pedroTesting;
     private BallIntake _ballIntake;
+    private BallSpooner _ballSpooner;
     private DisasterGamePad _driverOneGamepad;
     private DisasterGamePad _driverTwoGamepad;
     private DebouncedButton _increaseLaunchPower;
@@ -90,6 +91,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private DebouncedButton _increaseIndex;
     private DebouncedButton _decreaseIndex;
     private DebouncedButton _pedroStart;
+    private DebouncedButton _popBall;
     private double launcherIncrement = 0.05F;
 
     @Override
@@ -257,7 +259,13 @@ public class DecodeV1Teleop extends LinearOpMode
             _ballIntake = new BallIntake(hardwareMap, telemetry);
         }
 
+        if (FeatureFlags.ballSpoonerEnabled()){
+            _ballSpooner = new BallSpooner(hardwareMap, telemetry);
+        }
+
         //_pedroTesting = new PedroTesting(hardwareMap, telemetry);
+
+
 
         _driverTwoGamepad = new DisasterGamePad(gamepad2);
         _driverOneGamepad = new DisasterGamePad(gamepad1);
@@ -267,6 +275,8 @@ public class DecodeV1Teleop extends LinearOpMode
         _stopLauncher = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
         _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
         _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());
+
+        _popBall = new DebouncedButton(_driverTwoGamepad.getAButton());
 
         //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }
