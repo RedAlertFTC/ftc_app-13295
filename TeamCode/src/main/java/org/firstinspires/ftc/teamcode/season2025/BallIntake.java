@@ -20,6 +20,7 @@ public class BallIntake
         init();
     }
 
+
     private void init()
     {
         intakeMotor = _hardwareMap.get(DcMotor.class, "intakeMotor");
@@ -35,5 +36,13 @@ public class BallIntake
         double newPower = _currentPower - intakeIncrement;
         if(newPower < 0.0) newPower = 0.0;
         intakeMotor.setPower(newPower);
+    }
+
+    public void enableIntake(){
+        intakeMotor.setPower(1);
+    }
+
+    public void disableIntake(){
+        intakeMotor.setPower(0);
     }
 }

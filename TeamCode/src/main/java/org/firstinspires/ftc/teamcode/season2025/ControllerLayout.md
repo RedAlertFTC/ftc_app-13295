@@ -2,10 +2,10 @@
 
 Controller 1: Driving, Intake
 
-    - Button A: 
-    - Button B: Intake On/Off
+    - Button A: Intake Off
+    - Button B:
     - Button X:
-    - Button Y:
+    - Button Y: Intake On
 
     - Button UpDpad:
     - Button DownDpad:
