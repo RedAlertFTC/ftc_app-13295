@@ -197,13 +197,25 @@ public class DecodeV1Teleop extends LinearOpMode
 
             if(FeatureFlags.launchEnabled()) {
                 if (_increaseLaunchPower.getRise()) {
-                    _ballLauncher.speedUp(launcherIncrement);
+                    _ballLauncher.speedUpLauncher();
                 } else if (_decreaseLaunchPower.getRise()) {
-                    _ballLauncher.slowDown(launcherIncrement);
+                    _ballLauncher.slowDownLauncher();
                 }
 
                 if (_stopLauncher.getRise()) {
                     _ballLauncher.stop();
+                }
+
+                if(gamepad2.dpad_up){
+                    _ballLauncher.aimLauncherUp();
+                }
+                if(gamepad2.dpad_down){
+                    _ballLauncher.aimLauncherDown();
+                }
+                if(FeatureFlags.ballSpoonerEnabled()){
+                    if (_popBall.getRise()){
+                        _ballSpooner.popBall();
+                    }
                 }
             }
 
@@ -283,8 +295,8 @@ public class DecodeV1Teleop extends LinearOpMode
         _driverTwoGamepad = new DisasterGamePad(gamepad2);
         _driverOneGamepad = new DisasterGamePad(gamepad1);
 
-        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadDown());
-        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadUp());
+        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getBButton());
+        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getXButton());
         _stopLauncher = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
         _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
         _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());

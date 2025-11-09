@@ -13,12 +13,12 @@ public class BallSpooner
     private HardwareMap _hardwareMap;
 
 
-    public void popBall() throws InterruptedException {
+    public void popBall(){
         // 1.Arm rises
         _spooningServo.setPosition(spoonerPeak);
 
         // 2.Wait period
-        _spooningServo.wait(100);
+        //_spooningServo.wait(100);
 
         // 3.Arm falls
         _spooningServo.setPosition(0);

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.season2025;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -12,11 +13,15 @@ public class BallLauncher {
     private Telemetry _telemetry;
     private DcMotorEx leftLaunchMotor;
     private DcMotorEx rightLaunchMotor;
+    private double INCREMENT = 0.01;
 
+    private Servo linearServo;
     private double _maxPower = 1.0;
     private double _currentPower = 0.0;
     private double currentRPM = 0.0;
     private double _increment = 0.05;
+    private double currentPos;
+    private double newPos;
     double maxRPM = 312; //Example desired RPM
     double currentTPS = 0;
     double leftTPR= 537.7; //Example for a REV HD HEX 40:1 spur motor
@@ -27,19 +32,23 @@ public class BallLauncher {
 
 
     public BallLauncher(HardwareMap hardwareMap, Telemetry telemetry) {
+
         _hardwareMap = hardwareMap;
         _telemetry = telemetry;
         init();
+
     }
 
     private void init() {
         leftLaunchMotor = _hardwareMap.get(DcMotorEx.class, "launchLeft");
-        leftLaunchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftLaunchMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftLaunchMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
         rightLaunchMotor = _hardwareMap.get(DcMotorEx.class, "launchRight");
-        rightLaunchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightLaunchMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightLaunchMotor.setDirection(DcMotorEx.Direction.REVERSE);
+
+        linearServo = _hardwareMap.get(Servo.class, "linearServo");
 
     }
 
@@ -53,7 +62,7 @@ public class BallLauncher {
             _currentPower = speed;
         }
     }
-    public void speedUp()
+    public void speedUpLauncher()
     {
         double newPower = _currentPower + _increment;
         if(newPower > 1.0) newPower = 1.0;
@@ -71,7 +80,7 @@ public class BallLauncher {
        setMotorSpeed(0);
     }
 
-    public void slowDown()
+    public void slowDownLauncher()
     {
         double newPower = _currentPower - _increment;
         if(newPower < 0.0 ) newPower = 0.0;
@@ -94,12 +103,36 @@ public class BallLauncher {
     {;
         double RPM = convertToRPM(power);
         currentTPS = convertToTPS(RPM);
-        leftLaunchMotor.setVelocity(currentTPS);
-        rightLaunchMotor.setVelocity(currentTPS);
+       // leftLaunchMotor.setVelocity(currentTPS);
+        //rightLaunchMotor.setVelocity(currentTPS);
         _currentPower = power;
         currentRPM = RPM;
         _telemetry.addData("LaunchPower", _currentPower);
 
+    }
+
+    public void aimLauncherUp()
+    {
+        currentPos = linearServo.getPosition();
+        newPos = currentPos + INCREMENT;
+        linearServo.setPosition(newPos);
+        currentPos = newPos;
+
+        if (currentPos >= 1){
+            linearServo.setPosition(1);
+        }
+    }
+
+    public void aimLauncherDown()
+    {
+        currentPos = linearServo.getPosition();
+        newPos = currentPos - INCREMENT;
+        linearServo.setPosition(newPos);
+        currentPos = newPos;
+
+        if (currentPos <= 0){
+            linearServo.setPosition(0);
+        }
     }
 
     private double convertToTPS(double RPM)
