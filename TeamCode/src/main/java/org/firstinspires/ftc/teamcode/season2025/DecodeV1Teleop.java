@@ -98,7 +98,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private double launcherIncrement = 0.05F;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -229,6 +229,31 @@ public class DecodeV1Teleop extends LinearOpMode
                 _turntable.updateCurrentSlot();
             }
 
+
+            if (FeatureFlags.ballSpoonerEnabled()){
+
+
+                if(_ballSpooner.getSpoonerStatus() == BallSpooner.SpoonerState.Resting){
+                    if (_popBall.getRise()){
+                        _ballSpooner.popBall();
+                    }
+                }
+
+                if(_ballSpooner.getSpoonerStatus() == BallSpooner.SpoonerState.Firing){
+                    if (_ballSpooner.getSpoonerPosition() >= 1.0){
+                        _ballSpooner.returnBallSpooner();
+                    }
+                }
+                if(_ballSpooner.getSpoonerStatus() == BallSpooner.SpoonerState.Fired){
+                    if (_ballSpooner.getSpoonerPosition() <= 0){
+                        _ballSpooner.restBallSpooner();
+                    }
+                }
+
+                telemetry.addData("Current Ball Spooner State", _ballSpooner.getSpoonerStatus());
+            }
+
+
             if(FeatureFlags.ballIntakeEnabled()){
 
                 if (_enableIntake.getRise()){
@@ -263,6 +288,9 @@ public class DecodeV1Teleop extends LinearOpMode
             {
                 telemetry.addData("Turntable Slot", _turntable.currentSlot());
                 telemetry.addData("Turntable Pos", _turntable._currentPosition);
+            }
+            if (FeatureFlags.ballSpoonerEnabled()){
+                telemetry.addData("Spooner Position", _ballSpooner.getSpoonerPosition());
             }
 
 

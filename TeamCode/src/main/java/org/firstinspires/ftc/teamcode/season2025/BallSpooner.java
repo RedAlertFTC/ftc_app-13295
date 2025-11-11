@@ -7,24 +7,47 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class BallSpooner
 {
-    private double spoonerPeak = 0.6;
+    private double spoonerPeak = 1.0;
     private Servo _spooningServo;
     private Telemetry _telemetry;
     private HardwareMap _hardwareMap;
+    private boolean isPopping;
+    private boolean isReturning;
+    private  boolean isResting;
+    private SpoonerState spoonerStatus;
+
+    public double getSpoonerPosition(){ return _spooningServo.getPosition(); }
+    public SpoonerState getSpoonerStatus() { return spoonerStatus; }
 
 
-    public void popBall(){
-        // 1.Arm rises
-        _spooningServo.setPosition(spoonerPeak);
+    public enum SpoonerState{
+        Firing,
+        Resting,
+        Fired;
+    }
 
-        // 2.Wait period
-        //_spooningServo.wait(100);
+    public void popBall() {
+        spoonerStatus = SpoonerState.Firing;
+        _spooningServo.setPosition(1);
+    }
 
-        // 3.Arm falls
+    public void returnBallSpooner() {
+
+        spoonerStatus = SpoonerState.Fired;
         _spooningServo.setPosition(0);
     }
 
+    public void restBallSpooner(){
+        spoonerStatus = SpoonerState.Resting;
+    }
 
+    public void checkBallSpooner(){
+        if (_spooningServo.getPosition() >= spoonerPeak){
+            _spooningServo.setPosition(spoonerPeak);
+        }
+       // _spooningServo.setPosition(0);
+        _spooningServo.setPosition(0);
+    }
 
     public BallSpooner(HardwareMap hardwareMap, Telemetry telemetry)
     {
@@ -33,6 +56,10 @@ public class BallSpooner
         init();
     }
 
-    private void init(){ _spooningServo = _hardwareMap.get(Servo.class, "spooningServo"); }
+    private void init(){
+        _spooningServo = _hardwareMap.get(Servo.class, "spooningServo");
+        spoonerStatus = SpoonerState.Resting;
+        _spooningServo.setPosition(0);
+    }
 
 }
