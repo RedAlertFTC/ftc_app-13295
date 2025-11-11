@@ -2,10 +2,10 @@
 
 Controller 1: Driving, Intake
 
-    - Button A: 
-    - Button B: Intake On/Off
+    - Button A: Intake Off
+    - Button B:
     - Button X:
-    - Button Y:
+    - Button Y: Intake On
 
     - Button UpDpad:
     - Button DownDpad:
@@ -24,8 +24,8 @@ Controller 1: Driving, Intake
 Controller 2: Turntable, Launcher
 
     - Button A: Shoot
-    - Button B:
-    - Button X:
+    - Button B: Slow down launcher
+    - Button X: Speed up Launcher
     - Button Y:
 
     - Button UpDpad: AimUp
