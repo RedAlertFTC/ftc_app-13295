@@ -24,8 +24,8 @@ Controller 1: Driving, Intake
 Controller 2: Turntable, Launcher
 
     - Button A: Shoot
-    - Button B: Slow down launcher
-    - Button X: Speed up Launcher
+    - Button B: Speed up launcher
+    - Button X: Slow down launcher
     - Button Y:
 
     - Button UpDpad: AimUp

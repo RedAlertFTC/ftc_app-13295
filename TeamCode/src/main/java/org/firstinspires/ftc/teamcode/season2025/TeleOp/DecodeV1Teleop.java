@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.season2025;
+package org.firstinspires.ftc.teamcode.season2025.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -37,6 +37,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.corelib.control.DebouncedButton;
 import org.firstinspires.ftc.teamcode.corelib.control.DisasterGamePad;
+import org.firstinspires.ftc.teamcode.season2025.Components.BallIntake;
+import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
+import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
+import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
+import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.testing.PedroTesting;
 
 /*
@@ -195,16 +200,25 @@ public class DecodeV1Teleop extends LinearOpMode
             backRightDrive.setPower(backRightPower);
 
 
+
+            if(_popBall.getRise()) {
+                //telemetry.addData("Gamepad2:A", "pressed");
+            } else {
+                //telemetry.addData("Gamepad2:A", "not pressed");
+            }
+
             if(FeatureFlags.launchEnabled()) {
-                if (_increaseLaunchPower.getRise()) {
-                    _ballLauncher.speedUpLauncher();
-                } else if (_decreaseLaunchPower.getRise()) {
-                    _ballLauncher.slowDownLauncher();
+
+
+                if (_increaseLaunchPower.getRise()){
+                    _ballLauncher.increaseLauncherSpeed();
                 }
 
-                if (_stopLauncher.getRise()) {
-                    _ballLauncher.stop();
+                if (_decreaseLaunchPower.getRise()){
+                    _ballLauncher.decreaseLauncherSpeed();
                 }
+
+
 
                 if(gamepad2.dpad_up){
                     _ballLauncher.aimLauncherUp();
@@ -212,45 +226,30 @@ public class DecodeV1Teleop extends LinearOpMode
                 if(gamepad2.dpad_down){
                     _ballLauncher.aimLauncherDown();
                 }
-                if(FeatureFlags.ballSpoonerEnabled()){
-                    if (_popBall.getRise()){
-                        _ballSpooner.popBall();
-                    }
-                }
             }
 
             if(FeatureFlags.turnTableEnabled()) {
                 if (_increaseIndex.getRise()) {
+                    telemetry.addData("Spindex", "Increase");
                     _turntable.rotateTurntable(+1);
                 } else if (_decreaseIndex.getRise()) {
+                    telemetry.addData("Spindex", "Descrease");
                     _turntable.rotateTurntable(-1);
                 }
-
                 _turntable.updateCurrentSlot();
             }
 
 
-            if (FeatureFlags.ballSpoonerEnabled()){
+            if (FeatureFlags.ballSpoonerEnabled())
+            {
 
+                if(gamepad2.a){
+                    _ballSpooner.fire();
 
-                if(_ballSpooner.getSpoonerStatus() == BallSpooner.SpoonerState.Resting){
-                    if (_popBall.getRise()){
-                        _ballSpooner.popBall();
-                    }
                 }
 
-                if(_ballSpooner.getSpoonerStatus() == BallSpooner.SpoonerState.Firing){
-                    if (_ballSpooner.getSpoonerPosition() >= 1.0){
-                        _ballSpooner.returnBallSpooner();
-                    }
-                }
-                if(_ballSpooner.getSpoonerStatus() == BallSpooner.SpoonerState.Fired){
-                    if (_ballSpooner.getSpoonerPosition() <= 0){
-                        _ballSpooner.restBallSpooner();
-                    }
-                }
+                _ballSpooner.updateSpoonerState();
 
-                telemetry.addData("Current Ball Spooner State", _ballSpooner.getSpoonerStatus());
             }
 
 
@@ -273,15 +272,18 @@ public class DecodeV1Teleop extends LinearOpMode
 
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
+           // telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+
             if(FeatureFlags.launchEnabled())
             {
                 telemetry.addData("Launch Power", _ballLauncher.getCurrentPower());
                 //telemetry.addData("LauncherRPM", _ballLauncher.currentRPM());
                 //telemetry.addData("Current TPS", _ballLauncher.currentTPS());
 
+                telemetry.addData("Left Launch Power", _ballLauncher.getLeftLaunchPower());
+                telemetry.addData("Right Launch Power", _ballLauncher.getRightLaunchPower());
             }
 
             if(FeatureFlags.turnTableEnabled())
@@ -289,10 +291,6 @@ public class DecodeV1Teleop extends LinearOpMode
                 telemetry.addData("Turntable Slot", _turntable.currentSlot());
                 telemetry.addData("Turntable Pos", _turntable._currentPosition);
             }
-            if (FeatureFlags.ballSpoonerEnabled()){
-                telemetry.addData("Spooner Position", _ballSpooner.getSpoonerPosition());
-            }
-
 
             telemetry.update();
         }
@@ -314,26 +312,24 @@ public class DecodeV1Teleop extends LinearOpMode
 
         if (FeatureFlags.ballSpoonerEnabled()){
             _ballSpooner = new BallSpooner(hardwareMap, telemetry);
+            _ballSpooner.init();
         }
 
         //_pedroTesting = new PedroTesting(hardwareMap, telemetry);
 
-
-
-        _driverTwoGamepad = new DisasterGamePad(gamepad2);
+        //Gamepad 1 configuration
         _driverOneGamepad = new DisasterGamePad(gamepad1);
-
-        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getBButton());
-        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getXButton());
-        _stopLauncher = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
-        _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
-        _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());
-
-        _popBall = new DebouncedButton(_driverTwoGamepad.getAButton());
-
         _enableIntake = new DebouncedButton(_driverOneGamepad.getYButton());
         _disableIntake = new DebouncedButton(_driverOneGamepad.getAButton());
 
+        //Gamepad 2 configuration
+        _driverTwoGamepad = new DisasterGamePad(gamepad2);
+        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getXButton());
+        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getBButton());
+        _stopLauncher = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
+        _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
+        _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());
+        _popBall = new DebouncedButton(_driverTwoGamepad.getAButton());
 
         //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.season2025;
+package org.firstinspires.ftc.teamcode.season2025.Components;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
