@@ -17,7 +17,7 @@ public class BallLauncher {
 
     private Servo linearServo;
     private double _maxPower = 1.0;
-    private double _currentPower = 0.4;
+    private double _currentPower = 0.0;
     private double currentRPM = 0.0;
     private double _increment = 0.05;
     private double currentPos;
@@ -49,8 +49,8 @@ public class BallLauncher {
         rightLaunchMotor = _hardwareMap.get(DcMotorEx.class, "launchRight");
         rightLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftLaunchMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        rightLaunchMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        leftLaunchMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        rightLaunchMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
         linearServo = _hardwareMap.get(Servo.class, "linearServo");
 
@@ -100,7 +100,8 @@ public class BallLauncher {
         currentPos = newPos;
 
         if (currentPos >= 1){
-            linearServo.setPosition(1);
+            currentPos = 1;
+            linearServo.setPosition(currentPos);
         }
     }
 
@@ -112,7 +113,8 @@ public class BallLauncher {
         currentPos = newPos;
 
         if (currentPos <= 0){
-            linearServo.setPosition(0);
+            currentPos = 0;
+            linearServo.setPosition(currentPos);
         }
     }
 

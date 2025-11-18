@@ -7,6 +7,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Turntable
 {
+
+    private enum TurntableState
+    {
+        REST,
+        MOVING
+    }
+
     private Servo _turntable;
     private Telemetry _telemetry;
     private HardwareMap _hardwareMap;
@@ -40,7 +47,6 @@ public class Turntable
     public void updateCurrentSlot()
     {
        _currentPosition =  _turntable.getPosition();
-
 
         if(_currentSlot == 1){
             _turntable.setPosition(0);
