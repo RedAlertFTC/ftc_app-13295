@@ -12,6 +12,7 @@ public class BallIntake
     private Telemetry _telemetry;
     private HardwareMap _hardwareMap;
     private double _currentPower = 0.0;
+    private boolean _enabled = false;
 
     public BallIntake(HardwareMap hardwareMap, Telemetry telemetry)
     {
@@ -25,18 +26,32 @@ public class BallIntake
     {
         intakeMotor = _hardwareMap.get(DcMotor.class, "intakeMotor");
     }
-    public void increaseIntakeSpeed()
-    {
-        double newPower = _currentPower + intakeIncrement;
-        if(newPower > 1.0) newPower = 1.0;
-       intakeMotor.setPower(newPower);
+
+
+    public void toggleIntake(){
+        if (_enabled){
+            intakeMotor.setPower(0);
+            _enabled = false;
+        }
+        else{
+            intakeMotor.setPower(1);
+            _enabled = true;
+        }
     }
-    public void decreaseIntakeSpeed()
-    {
-        double newPower = _currentPower - intakeIncrement;
-        if(newPower < 0.0) newPower = 0.0;
-        intakeMotor.setPower(newPower);
-    }
+
+
+//    public void increaseIntakeSpeed()
+//    {
+//        double newPower = _currentPower + intakeIncrement;
+//        if(newPower > 1.0) newPower = 1.0;
+//       intakeMotor.setPower(newPower);
+//    }
+//    public void decreaseIntakeSpeed()
+//    {
+//        double newPower = _currentPower - intakeIncrement;
+//        if(newPower < 0.0) newPower = 0.0;
+//        intakeMotor.setPower(newPower);
+//    }
 
     public void enableIntake(){
         intakeMotor.setPower(1);

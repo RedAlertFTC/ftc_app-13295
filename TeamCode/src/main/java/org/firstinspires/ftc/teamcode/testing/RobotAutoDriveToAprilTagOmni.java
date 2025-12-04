@@ -27,8 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.season2025.Auto;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+package org.firstinspires.ftc.teamcode.testing;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -39,10 +38,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.season2025.Components.BallAimer;
-import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
-import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
-import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -90,9 +85,9 @@ import java.util.concurrent.TimeUnit;
  *
  */
 
-@Autonomous(name="DecodeV1AutoOp", group = "Robot")
+@TeleOp(name="Omni Drive To AprilTag", group = "Concept")
 
-public class DecodeV1AutoOp extends LinearOpMode
+public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
 {
     // Adjust these numbers to suit your robot.
     final double DESIRED_DISTANCE = 50.0;  //  this is how close the camera should get to the target (inches)
@@ -121,12 +116,6 @@ public class DecodeV1AutoOp extends LinearOpMode
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
-
-    private BallLauncher _ballLauncher;
-    private Turntable _turntable;
-    private BallSpooner _ballSpooner;
-    private BallAimer _ballAimer;
-
 
     @Override public void runOpMode()
     {
@@ -180,11 +169,6 @@ public class DecodeV1AutoOp extends LinearOpMode
             }
 
 
-
-
-
-
-
             // Step through the list of detected tags and look for a matching tag
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
             for (AprilTagDetection detection : currentDetections) {
@@ -217,28 +201,6 @@ public class DecodeV1AutoOp extends LinearOpMode
             } else {
                 telemetry.addData("\n>","Drive using joysticks to find valid target\n");
             }
-
-            if ( targetFound && desiredTag.ftcPose.range < DESIRED_DISTANCE + 1.25 && desiredTag.ftcPose.range > DESIRED_DISTANCE - 1.25){
-                stopMoving();
-                telemetry.addData("Robot needs to commence the launch sequence", "true");
-                launchAllBalls();
-            }
-
-            if (targetFound){
-
-                _ballAimer.calculateCurrentZone(desiredTag.ftcPose.range);
-                telemetry.addData("Current Zone", _ballAimer.CurrentZone);
-
-                _ballAimer.calculateDesiredPower();
-                telemetry.addData("Desired Power", _ballAimer.DesiredPower);
-
-                _ballAimer.calculateDesiredAngle();
-                telemetry.addData("Desired Angle", _ballAimer.DesiredAngle);
-
-                _ballLauncher.setLauncherVelocity(_ballAimer.DesiredPower);
-                _ballLauncher.setLauncherAngle(_ballAimer.DesiredAngle);
-            }
-
 
             // If Left Bumper is being pressed, AND we have found the desired target, Drive to target Automatically .
             if (targetFound && FINDING_TARGET == false) {
@@ -398,22 +360,6 @@ public class DecodeV1AutoOp extends LinearOpMode
         frontRightDrive.setPower(0);
         backRightDrive.setPower(0);
     }
-
-
-    private void launchAllBalls(){
-        _ballLauncher.setLauncherVelocity(500);
-        _turntable.moveToIndex(1);
-        _ballSpooner.fire();
-
-        _turntable.moveToIndex(2);
-        _ballSpooner.fire();
-
-        _turntable.moveToIndex(3);
-        _ballSpooner.fire();
-
-    }
-
-
 
 
 }
