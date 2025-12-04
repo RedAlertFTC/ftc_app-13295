@@ -34,6 +34,7 @@ public class DecodeHardwareTester extends LinearOpMode {
 
         Servo spooningServo = hardwareMap.get(Servo.class, "spooningServo");
         Servo turntableServo = hardwareMap.get(Servo.class, "turntable");
+        Servo linearServo = hardwareMap.get(Servo.class, "linearServo");
 
 //
 //        BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -121,6 +122,11 @@ public class DecodeHardwareTester extends LinearOpMode {
                     selectedHardware = "Spindexer Servo";
                     turntableServo.setPosition(leftStickY);
                     telemetry.addData("Turntable servo: ", "%.2f", leftStickY);
+                    break;
+                case 9:
+                    selectedHardware = "Linear Server";
+                    linearServo.setPosition(leftStickY);
+                    telemetry.addData("Linear servo: ", "%.2f", leftStickY);
                     break;
 //                case 7:
 //                    selectedHardware = "Winch Motor";

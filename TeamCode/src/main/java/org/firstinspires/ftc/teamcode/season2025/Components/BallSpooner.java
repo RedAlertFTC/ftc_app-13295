@@ -11,9 +11,12 @@ public class BallSpooner
 
     private final HardwareMap _hardwareMap;
     private final Telemetry _telemetry;
-    long elapTrigger = 300;
+    long elapTrigger = 500;
     long startMs = 0;
     FiringEnum currentState = FiringEnum.REST;
+
+    double serverStart = 1.0;
+    double serverFired = .5;
 
     public BallSpooner(HardwareMap hardwareMap, Telemetry telemetry)
     {
@@ -46,7 +49,7 @@ public class BallSpooner
         long startMs = 0;
 
         //Reset the server to the start position
-        servo.setPosition(0);
+        servo.setPosition(serverStart);
     }
 
     public void updateSpoonerState() {
@@ -60,7 +63,7 @@ public class BallSpooner
             case FIRE:
                 currentState = FiringEnum.FIRING;
                 startMs = System.currentTimeMillis();
-                servo.setPosition(1);
+                servo.setPosition(serverFired);
                 break;
             case FIRING:
                 if(System.currentTimeMillis() > (startMs + elapTrigger)){
@@ -70,7 +73,7 @@ public class BallSpooner
             case FIRED:
                 currentState = FiringEnum.RESETTING;
                 startMs = System.currentTimeMillis();
-                servo.setPosition(0);
+                servo.setPosition(serverStart);
                 break;
             case RESETTING:
                 if(System.currentTimeMillis() > (startMs + elapTrigger)){

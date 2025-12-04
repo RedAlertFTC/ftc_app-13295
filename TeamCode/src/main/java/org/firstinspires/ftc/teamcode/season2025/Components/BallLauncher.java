@@ -13,22 +13,36 @@ public class BallLauncher {
     private Telemetry _telemetry;
     private DcMotorEx leftLaunchMotor;
     private DcMotorEx rightLaunchMotor;
-    private double INCREMENT = 0.01;
+    private double INCREMENT = 0.05;
 
     private Servo linearServo;
     private double _maxPower = 1.0;
     private double _currentPower = 0.0;
     private double currentRPM = 0.0;
+    private double MAX_RPM = 100;
+    private double MIN_RPM = 5;
+    private double RPM_INCREMENT = 5;
     private double _increment = 0.05;
     private double currentPos;
     private double newPos;
-    double maxRPM = 312; //Example desired RPM
     double currentTPS = 0;
-    double leftTPR= 537.7; //Example for a REV HD HEX 40:1 spur motor
-    double rightTPR = 384.5;
-    //double rightTargetTPS = (desiredRPM / 60) * rPPR;
-    //double leftTargetTPS =  (desiredRPM / 60) * lPPR;
+    private double firingTPS = 500.0;
 
+
+    double MAX_TPS = 2800;
+    double MIN_TPS = 300;
+    double TPS_INCREMENT = 100;
+
+
+    double TPR = 28.0;
+
+    //double leftTPR= 28.0; //Example for a REV HD HEX 40:1 spur motor
+    //double rightTPR = 28.0;
+
+
+    // Define your motor's TICKS_PER_REV
+    // Replace with the actual value for your motor (e.g., from goBILDA specs)
+    public static final double TICKS_PER_REV = 28; // Example for a goBILDA 5202 motor
 
 
     public BallLauncher(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -36,23 +50,20 @@ public class BallLauncher {
         _hardwareMap = hardwareMap;
         _telemetry = telemetry;
         init();
-
     }
-
-
-
-
-
 
     private void init() {
         leftLaunchMotor = _hardwareMap.get(DcMotorEx.class, "launchLeft");
         rightLaunchMotor = _hardwareMap.get(DcMotorEx.class, "launchRight");
-        rightLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
         leftLaunchMotor.setDirection(DcMotorEx.Direction.FORWARD);
-        rightLaunchMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        leftLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        rightLaunchMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        rightLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         linearServo = _hardwareMap.get(Servo.class, "linearServo");
+        linearServo.setPosition(0.25);
 
 //        rightLaunchMotor.setPower(_currentPower);
 //        leftLaunchMotor.setPower(_currentPower);
@@ -60,10 +71,11 @@ public class BallLauncher {
     }
 
     public double currentSpeed() { return _currentPower; }
-    public double currentRPM(){ return currentRPM; }
-    public double currentTPS(){ return currentTPS; }
+    public double getCurrentRPM() { return currentRPM; }
+    public double getCurrentTPS() { return currentTPS; }
     public double getLeftLaunchPower(){ return leftLaunchMotor.getPower(); }
     public double getRightLaunchPower(){ return rightLaunchMotor.getPower(); }
+    public double getCurrentPos() { return currentPos; }
 
 
     public void increaseLauncherSpeed(){
@@ -78,7 +90,43 @@ public class BallLauncher {
         _telemetry.update();
     }
 
-    public void decreaseLauncherSpeed(){
+
+    public double getLeftVelocity() {
+        return leftLaunchMotor.getVelocity();
+    }
+    public double getRightVelocity() {
+        return rightLaunchMotor.getVelocity();
+    }
+
+    public void setLauncherVelocity(double inputTPS){
+        currentTPS = inputTPS;
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+
+    }
+    public void increaseLauncherSpeedByRPM()
+    {
+        currentRPM += RPM_INCREMENT;
+        if(currentRPM < MIN_RPM) currentRPM = MIN_RPM;
+        if(currentRPM > MAX_RPM) currentRPM = MAX_RPM;
+        currentTPS = ((currentRPM / 2.14)/ 60) * TICKS_PER_REV;
+
+
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
+
+    public void increaseLauncherSpeedByTPS()
+    {
+        currentTPS += TPS_INCREMENT;
+        if(currentTPS < MIN_TPS) currentTPS = MIN_TPS;
+        if(currentTPS > MAX_TPS) currentTPS = MAX_TPS;
+
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
+
+    public void decreaseLauncherSpeedByPower(){
         double _newPower = _currentPower - _increment;
         if (_newPower <= 0) _newPower = 0;
         _currentPower = _newPower;
@@ -87,6 +135,32 @@ public class BallLauncher {
     }
 
 
+    //
+    public void decreaseLauncherSpeedByRPM()
+    {
+        currentRPM -= RPM_INCREMENT;
+        if(currentRPM < MIN_RPM) currentRPM = 0;
+
+        if(currentRPM > 0) {
+            currentTPS = ((currentRPM/ 2.14)/ 60) * TICKS_PER_REV;
+
+            leftLaunchMotor.setVelocity(currentTPS);
+            rightLaunchMotor.setVelocity(currentTPS);
+        } else {
+            leftLaunchMotor.setVelocity(0);
+            rightLaunchMotor.setVelocity(0);
+        }
+    }
+
+    public void decreaseLauncherSpeedByTPS()
+    {
+        currentTPS -= TPS_INCREMENT;
+        if(currentTPS < MIN_TPS) currentTPS = 0;
+
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
+
     public double getCurrentPower()
     {
         return _currentPower;
@@ -94,30 +168,21 @@ public class BallLauncher {
 
     public void aimLauncherUp()
     {
-        currentPos = linearServo.getPosition();
-        newPos = currentPos + INCREMENT;
-        linearServo.setPosition(newPos);
-        currentPos = newPos;
+        currentPos += INCREMENT;
+        if(currentPos > 0.75) currentPos = 0.75;
+        linearServo.setPosition(currentPos);
 
-        if (currentPos >= 1){
-            currentPos = 1;
-            linearServo.setPosition(currentPos);
-        }
     }
-
     public void aimLauncherDown()
     {
-        currentPos = linearServo.getPosition();
-        newPos = currentPos - INCREMENT;
-        linearServo.setPosition(newPos);
-        currentPos = newPos;
-
-        if (currentPos <= 0){
-            currentPos = 0;
-            linearServo.setPosition(currentPos);
-        }
+        currentPos -= INCREMENT;
+        if(currentPos < 0.25) currentPos = 0.25;
+        linearServo.setPosition(currentPos);
     }
 
+    public void setLauncherAngle(double pos){
+        linearServo.setPosition(pos);
+    }
 
 
 }

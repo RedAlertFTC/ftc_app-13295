@@ -10,15 +10,20 @@ public class Turntable
 
     private enum TurntableState
     {
-        REST,
+        RESTING,
         MOVING
     }
 
     private Servo _turntable;
     private Telemetry _telemetry;
     private HardwareMap _hardwareMap;
-    private int _currentSlot = 1;
-    public double _currentPosition = 0;
+    private int _currentSlot = 2;
+    public double _currentPosition = 0.5;
+    private int MAX_SLOT = 3;
+    private int MIN_SLOT = 1;
+
+    private double MIN_POSITION = .05;
+    private double MAX_POSITION = .95;
 
     double turntableIncrement;
 
@@ -34,22 +39,40 @@ public class Turntable
     private void init()
     {
         _turntable = _hardwareMap.get(Servo.class, "turntable");
+        _turntable.setPosition(_currentPosition);
     }
 
 
-    public void rotateTurntable(int increment)
-    {
-        int newSlot = _currentSlot - increment;
-        _currentSlot = newSlot;
+//    public void rotateTurntable(int increment)
+//    {
+//        int newSlot = _currentSlot - increment;
+//        _currentSlot = newSlot;
+//
+//    }
+
+
+
+    public void increaseIndex(){
+        if (_currentSlot < MAX_SLOT ){
+            _currentSlot++;
+        }
+    }
+
+    public void decreaseIndex(){
+        if(_currentSlot > MIN_SLOT){
+            _currentSlot--;
+        }
+    }
+
+    public void moveToIndex(int index){
 
     }
 
     public void updateCurrentSlot()
     {
-       _currentPosition =  _turntable.getPosition();
 
         if(_currentSlot == 1){
-            _turntable.setPosition(0);
+            _turntable.setPosition(MIN_POSITION);
         }
 
         if(_currentSlot == 2){
@@ -57,16 +80,11 @@ public class Turntable
         }
 
         if(_currentSlot == 3){
-            _turntable.setPosition(1);
+            _turntable.setPosition(MAX_POSITION);
         }
 
-        if(_currentPosition >= 1){
-            _currentSlot = 3;
-        }
 
-        if (_currentSlot <= 0){
-            _currentSlot = 1;
-        }
+
     }
 
 }

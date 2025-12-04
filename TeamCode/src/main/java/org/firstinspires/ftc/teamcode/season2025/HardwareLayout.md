@@ -3,10 +3,10 @@
 
 ## Motors
 
-Front Left = fl
-Front Right = fr
-Back Left = bl
-Back Right = br
+Front Left = fl (Control Hub Port X)
+Front Right = fr (Control Hub Port X)
+Back Left = bl (Control Hub Port X)
+Back Right = br (Control Hub Port X)
 
 # Otos
 otos

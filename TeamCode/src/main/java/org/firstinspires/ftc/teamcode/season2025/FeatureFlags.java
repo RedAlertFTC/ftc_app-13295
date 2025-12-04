@@ -6,4 +6,5 @@ public class FeatureFlags {
     public static boolean turnTableEnabled() { return true; }
     public static boolean ballIntakeEnabled() { return true; }
     public static  boolean ballSpoonerEnabled() { return true; }
+    public static  boolean goalPositioningEnabled() { return false; }
 }
