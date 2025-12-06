@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.corelib.control.DebouncedButton;
@@ -77,6 +78,14 @@ import org.firstinspires.ftc.teamcode.testing.PedroTesting;
 public class DecodeV1Teleop extends LinearOpMode
 {
 
+
+    public teleOpAlliance _teleOpAlliance;
+    public enum teleOpAlliance{
+        RED,
+        BLUE
+    }
+
+
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotorEx frontLeftDrive = null;
@@ -105,6 +114,8 @@ public class DecodeV1Teleop extends LinearOpMode
     private DebouncedButton _aimLauncherUp;
     private DebouncedButton _aimLauncherDown;
     private double launcherIncrement = 0.05F;
+    private int goalAprilTag;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -118,7 +129,7 @@ public class DecodeV1Teleop extends LinearOpMode
         backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         frontRightDrive = hardwareMap.get(DcMotorEx.class, "fr");
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         backRightDrive = hardwareMap.get(DcMotorEx.class, "br");
         backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -196,17 +207,11 @@ public class DecodeV1Teleop extends LinearOpMode
             */
 
 
-
             // Send calculated power to wheels
             frontLeftDrive.setPower(frontLeftPower);
             frontRightDrive.setPower(frontRightPower);
             backLeftDrive.setPower(backLeftPower);
             backRightDrive.setPower(backRightPower);
-
-
-
-
-
 
 
             if(_popBall.getRise()) {
@@ -263,7 +268,6 @@ public class DecodeV1Teleop extends LinearOpMode
 
             }
 
-
             if (FeatureFlags.ballSpoonerEnabled())
             {
                 if(gamepad2.a){
@@ -280,6 +284,7 @@ public class DecodeV1Teleop extends LinearOpMode
                 if (gamepad1.left_bumper){
                     _goalPositioning.find();
                 }
+
 
             }
 
@@ -318,8 +323,6 @@ public class DecodeV1Teleop extends LinearOpMode
                 telemetry.addData("Turntable Pos", _turntable._currentPosition);
             }
 
-
-
             telemetry.update();
         }
     }
@@ -343,7 +346,7 @@ public class DecodeV1Teleop extends LinearOpMode
             _ballSpooner.init();
         }
         if (FeatureFlags.goalPositioningEnabled()){
-            _goalPositioning = new GoalPositioning(hardwareMap, telemetry);
+            _goalPositioning = new GoalPositioning(hardwareMap, telemetry, goalAprilTag);
         }
 
         //_pedroTesting = new PedroTesting(hardwareMap, telemetry);
@@ -364,5 +367,9 @@ public class DecodeV1Teleop extends LinearOpMode
         _aimLauncherUp = new DebouncedButton(_driverTwoGamepad.getDpadUp());
 
         //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
+    }
+
+    public void setGoalAprilTag(int aprilTagID){
+        goalAprilTag = aprilTagID;
     }
 }
