@@ -29,10 +29,9 @@
 
 package org.firstinspires.ftc.teamcode.season2025.Auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -94,6 +93,15 @@ import java.util.concurrent.TimeUnit;
 
 public class DecodeV1AutoOp extends LinearOpMode
 {
+
+    public autoAlliance autoAlliance;
+    public enum autoAlliance{
+        RED,
+        BLUE
+    }
+
+
+
     // Adjust these numbers to suit your robot.
     final double DESIRED_DISTANCE = 50.0;  //  this is how close the camera should get to the target (inches)
     //final double DESIRED_BEARING = -20;
@@ -117,7 +125,7 @@ public class DecodeV1AutoOp extends LinearOpMode
 
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     private static boolean FINDING_TARGET = true;
-    private static final int DESIRED_TAG_ID = 20;     // Choose the tag you want to approach or set to -1 for ANY tag.
+    private int goalAprilTag = 20;     // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
@@ -126,6 +134,8 @@ public class DecodeV1AutoOp extends LinearOpMode
     private Turntable _turntable;
     private BallSpooner _ballSpooner;
     private BallAimer _ballAimer;
+    private ElapsedTime runtime = new ElapsedTime();
+    private static final double RUN_TIME = 2; // Seconds
 
 
     @Override public void runOpMode()
@@ -191,7 +201,7 @@ public class DecodeV1AutoOp extends LinearOpMode
                 // Look to see if we have size info on this tag.
                 if (detection.metadata != null) {
                     //  Check to see if we want to track towards this tag.
-                    if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
+                    if ((goalAprilTag < 0) || (detection.id == goalAprilTag)) {
                         // Yes, we want to use this tag.
                         targetFound = true;
                         FINDING_TARGET = false;
@@ -413,7 +423,17 @@ public class DecodeV1AutoOp extends LinearOpMode
 
     }
 
+    private void escapeWall(){
 
+        if (runtime.seconds() < RUN_TIME){
+
+            frontLeftDrive.setPower(1);
+            frontRightDrive.setPower(1);
+            backLeftDrive.setPower(1);
+            backRightDrive.setPower(1);
+        }
+
+    }
 
 
 }
