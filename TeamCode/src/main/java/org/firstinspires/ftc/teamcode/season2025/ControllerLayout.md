@@ -2,18 +2,18 @@
 
 Controller 1: Driving, Intake
 
-    - Button A: Intake Off
+    - Button A:
     - Button B:
     - Button X:
-    - Button Y: Intake On
+    - Button Y: 
 
     - Button UpDpad:
     - Button DownDpad:
     - Button RightDpad:
     - Button LeftDpad:
 
-    - Button RT:
-    - Button LT:
+    - Button RT: Intake On
+    - Button LT: Intake Reverse
     - Button RB:
     - Button LB:
 

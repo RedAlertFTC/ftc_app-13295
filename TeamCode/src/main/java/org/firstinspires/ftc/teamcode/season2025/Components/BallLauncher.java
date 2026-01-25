@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.season2025.Components;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -30,8 +31,9 @@ public class BallLauncher {
 
 
     double MAX_TPS = 2800;
-    double MIN_TPS = 300;
-    double TPS_INCREMENT = 100;
+    double MIN_TPS = 700;
+    //double TPS_INCREMENT = 100;
+    double TPS_INCREMENT = 50;
 
 
     double TPR = 28.0;
@@ -57,9 +59,11 @@ public class BallLauncher {
         rightLaunchMotor = _hardwareMap.get(DcMotorEx.class, "launchRight");
 
         leftLaunchMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        leftLaunchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         rightLaunchMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        rightLaunchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         linearServo = _hardwareMap.get(Servo.class, "linearServo");
@@ -182,6 +186,30 @@ public class BallLauncher {
 
     public void setLauncherAngle(double pos){
         linearServo.setPosition(pos);
+    }
+
+    public void setLaunchPresetOne(){
+        currentTPS = 1100;
+        currentPos = 0.4;
+        linearServo.setPosition(currentPos);
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
+
+    public void setLaunchPresetTwo(){
+        currentTPS = 1200;
+        currentPos = 0.55;
+        linearServo.setPosition(currentPos);
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
+
+    public void setLaunchPresetThree(){
+        currentTPS = 1300;
+        currentPos = 0.35;
+        linearServo.setPosition(currentPos);
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
     }
 
 

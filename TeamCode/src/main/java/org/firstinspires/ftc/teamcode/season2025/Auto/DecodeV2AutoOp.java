@@ -70,7 +70,7 @@ public class DecodeV2AutoOp extends LinearOpMode {
     private BallSpooner _ballSpooner;
     private BallAimer _ballAimer;
     private ElapsedTime runtime = new ElapsedTime();
-    private static final double RUN_TIME = 2;
+    private static final double RUN_TIME = 3;
 
     @Override
     public void runOpMode() {
@@ -112,7 +112,9 @@ public class DecodeV2AutoOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()){
+
             switch (autoStates){
+
                 case ESCAPING:
                     escapeWall();
                     break;
@@ -244,7 +246,7 @@ public class DecodeV2AutoOp extends LinearOpMode {
                 strafe = Range.clip(lateralError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
                 turn = Range.clip(yawError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
 
-                moveRobot(drive, strafe, turn);
+                moveRobot(-drive, -strafe, turn);
             }
 
         } else {
@@ -277,10 +279,15 @@ public class DecodeV2AutoOp extends LinearOpMode {
     private void launchAllBalls(){
         _ballLauncher.setLauncherVelocity(500);
         _turntable.moveToIndex(1);
+        sleep(1000);
         _ballSpooner.fire();
+        sleep(1000);
         _turntable.moveToIndex(2);
+        sleep(1000);
         _ballSpooner.fire();
+        sleep(1000);
         _turntable.moveToIndex(3);
+        sleep(1000);
         _ballSpooner.fire();
         sleep(20);
         autoStates = AutoStates.COLLECTING;
@@ -288,10 +295,10 @@ public class DecodeV2AutoOp extends LinearOpMode {
 
     private void escapeWall(){
         if (runtime.seconds() < RUN_TIME){
-            frontLeftDrive.setPower(1);
-            frontRightDrive.setPower(1);
-            backLeftDrive.setPower(1);
-            backRightDrive.setPower(1);
+            frontLeftDrive.setPower(-1);
+            frontRightDrive.setPower(-1);
+            backLeftDrive.setPower(-1);
+            backRightDrive.setPower(-1);
         } else {
             autoStates = AutoStates.FINDINGTAG;
         }

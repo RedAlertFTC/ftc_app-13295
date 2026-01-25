@@ -42,6 +42,7 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallIntake;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.GoalPositioning;
+import org.firstinspires.ftc.teamcode.season2025.Components.LimelightGoalPositioning;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.testing.PedroTesting;
@@ -99,6 +100,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private BallIntake _ballIntake;
     private BallSpooner _ballSpooner;
     private GoalPositioning _goalPositioning;
+    private LimelightGoalPositioning _limelightGoalPositioning;
     private DisasterGamePad _driverOneGamepad;
     private DisasterGamePad _driverTwoGamepad;
 
@@ -109,12 +111,15 @@ public class DecodeV1Teleop extends LinearOpMode
     private DebouncedButton _decreaseIndex;
     private DebouncedButton _pedroStart;
     private DebouncedButton _popBall;
-    private DebouncedButton _toggleIntake;
-
+    private DebouncedButton _toggleRobotDirection;
     private DebouncedButton _aimLauncherUp;
     private DebouncedButton _aimLauncherDown;
+    private DebouncedButton _launcherPresetOne;
+    private DebouncedButton _launcherPresetTwo;
+    private DebouncedButton _launcherPresetThree;
     private double launcherIncrement = 0.05F;
     private int goalAprilTag;
+    private boolean forwardDriving = true;
 
 
     @Override
@@ -164,10 +169,25 @@ public class DecodeV1Teleop extends LinearOpMode
         while (opModeIsActive()) {
             double max;
 
-            // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
+            double axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral =  -gamepad1.left_stick_x;
             double yaw     =  gamepad1.right_stick_x;
+
+            // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
+            if(forwardDriving) {
+                 axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+                 lateral =  gamepad1.left_stick_x;
+                 yaw     =  gamepad1.right_stick_x;
+
+            } else {
+                // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
+                 axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+                 lateral =  -gamepad1.left_stick_x;
+                 yaw     =  gamepad1.right_stick_x;
+            }
+
+
+
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -218,6 +238,15 @@ public class DecodeV1Teleop extends LinearOpMode
                 //telemetry.addData("Gamepad2:A", "pressed");
             } else {
                 //telemetry.addData("Gamepad2:A", "not pressed");
+            }
+
+            if (_toggleRobotDirection.getRise()){
+                if (forwardDriving == true){
+                    forwardDriving = false;
+                }
+                else {
+                    forwardDriving = true;
+                }
             }
 
             if(FeatureFlags.launchEnabled()) {
@@ -284,15 +313,34 @@ public class DecodeV1Teleop extends LinearOpMode
                 if (gamepad1.left_bumper){
                     _goalPositioning.find();
                 }
-
-
             }
 
+            if (FeatureFlags.limelightGoalPosotioningEnabled()){
+
+            }
             if(FeatureFlags.ballIntakeEnabled()){
 
-                if (_toggleIntake.getRise()){
-                    _ballIntake.toggleIntake();
+                if (gamepad1.right_trigger > 0){
+                    _ballIntake.forward();
                 }
+                else{
+                    _ballIntake.stop();
+                }
+
+                if (gamepad1.left_trigger > 0){
+                    _ballIntake.reverse();
+                }
+                else {
+                    stop();
+                }
+
+
+//                if (_toggleIntake.getRise()){
+//                    _ballIntake.toggleIntake();
+//                }
+//                if (_reverseToggleIntake.getRise()){
+//                    _ballIntake.reverseToggleIntake();
+//                }
             }
             /*
             if (_pedroStart.getRise()){
@@ -309,6 +357,20 @@ public class DecodeV1Teleop extends LinearOpMode
 
             if(FeatureFlags.launchEnabled())
             {
+
+                if (_launcherPresetOne.getRise()){
+                    _ballLauncher.setLaunchPresetOne();
+                }
+
+                if (_launcherPresetTwo.getRise()){
+                    _ballLauncher.setLaunchPresetTwo();
+                }
+
+                if (_launcherPresetThree.getRise()){
+                    _ballLauncher.setLaunchPresetThree();
+                }
+
+
                 telemetry.addData("Launch Power", _ballLauncher.getCurrentPower());
                 //telemetry.addData("LauncherRPM", _ballLauncher.currentRPM());
                 //telemetry.addData("Current TPS", _ballLauncher.currentTPS());
@@ -345,6 +407,15 @@ public class DecodeV1Teleop extends LinearOpMode
             _ballSpooner = new BallSpooner(hardwareMap, telemetry);
             _ballSpooner.init();
         }
+        if(FeatureFlags.turnTableEnabled()) {
+            //_turntable = new Turntable(hardwareMap, telemetry);
+            if (FeatureFlags.ballSpoonerEnabled()) {
+                _turntable = new Turntable(hardwareMap, telemetry, _ballSpooner);
+            } else {
+                _turntable = new Turntable(hardwareMap, telemetry);
+            }
+        }
+
         if (FeatureFlags.goalPositioningEnabled()){
             _goalPositioning = new GoalPositioning(hardwareMap, telemetry, goalAprilTag);
         }
@@ -353,18 +424,20 @@ public class DecodeV1Teleop extends LinearOpMode
 
         //Gamepad 1 configuration
         _driverOneGamepad = new DisasterGamePad(gamepad1);
-        _toggleIntake = new DebouncedButton(_driverOneGamepad.getYButton());
+        _toggleRobotDirection = new DebouncedButton(_driverOneGamepad.getAButton());
 
         //Gamepad 2 configuration
         _driverTwoGamepad = new DisasterGamePad(gamepad2);
-        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getXButton());
-        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getBButton());
-        _stopLauncher = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
+        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
+        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadRight());
         _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
         _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());
         _popBall = new DebouncedButton(_driverTwoGamepad.getAButton());
         _aimLauncherDown = new DebouncedButton(_driverTwoGamepad.getDpadDown());
         _aimLauncherUp = new DebouncedButton(_driverTwoGamepad.getDpadUp());
+        _launcherPresetOne = new DebouncedButton(_driverTwoGamepad.getXButton());
+        _launcherPresetTwo = new DebouncedButton(_driverTwoGamepad.getYButton());
+        _launcherPresetThree = new DebouncedButton(_driverTwoGamepad.getBButton());
 
         //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }
