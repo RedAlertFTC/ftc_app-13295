@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.season2025.Components;
 public class BallAimer
 {
     private double MaxRange = 150;
-    private double AmountOfZones = 8;
+    private double AmountOfZones = 20;
     private double MaxPower = 2400;   // max launcher velocity
     private double MaxAngle = 1;      // max angle in radians or servo units?
 
@@ -15,11 +15,11 @@ public class BallAimer
     public void calculateCurrentZone(double _desiredRange){
         DesiredRange = _desiredRange;
 
-        // Determine zone: 1–8
+        // Determine zone:
         double zoneSize = MaxRange / AmountOfZones;
         CurrentZone = (int)Math.ceil(DesiredRange / zoneSize);
 
-        // clamp 1–8
+        // clamp
         CurrentZone = Math.max(1, Math.min(CurrentZone, (int)AmountOfZones));
     }
 

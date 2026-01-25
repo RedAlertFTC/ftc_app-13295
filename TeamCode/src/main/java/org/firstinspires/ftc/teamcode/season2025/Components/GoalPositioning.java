@@ -335,7 +335,7 @@ public class GoalPositioning
             strafe = Range.clip(lateralError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
             turn = Range.clip(yawError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
 
-            moveRobot(drive, strafe, turn);
+            moveRobot(-drive, -strafe, turn);
 
 
         } else {

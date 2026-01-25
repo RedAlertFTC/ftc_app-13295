@@ -17,6 +17,9 @@ public class Turntable
     private Servo _turntable;
     private Telemetry _telemetry;
     private HardwareMap _hardwareMap;
+
+    private BallSpooner _ballSpooner;
+
     private int _currentSlot = 2;
     public double _currentPosition = 0.5;
     private int MAX_SLOT = 3;
@@ -33,6 +36,12 @@ public class Turntable
     {
         _telemetry = telemetry;
         _hardwareMap = hardwareMap;
+        init();
+    }
+    public  Turntable(HardwareMap hardwareMap, Telemetry telemetry, BallSpooner spooner) {
+        _telemetry = telemetry;
+        _hardwareMap = hardwareMap;
+        _ballSpooner = spooner;
         init();
     }
 
@@ -52,13 +61,14 @@ public class Turntable
 
 
 
-    public void increaseIndex(){
+    public void increaseIndex() {
+
         if (_currentSlot < MAX_SLOT ){
             _currentSlot++;
         }
     }
 
-    public void decreaseIndex(){
+    public void decreaseIndex() {
         if(_currentSlot > MIN_SLOT){
             _currentSlot--;
         }
@@ -70,7 +80,6 @@ public class Turntable
 
     public void updateCurrentSlot()
     {
-
         if(_currentSlot == 1){
             _turntable.setPosition(MIN_POSITION);
         }
@@ -82,9 +91,6 @@ public class Turntable
         if(_currentSlot == 3){
             _turntable.setPosition(MAX_POSITION);
         }
-
-
-
     }
 
 }

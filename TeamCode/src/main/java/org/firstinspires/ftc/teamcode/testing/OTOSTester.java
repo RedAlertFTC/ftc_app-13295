@@ -29,6 +29,10 @@
 
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.bylazar.field.FieldManager;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.PoseHistory;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -79,6 +83,11 @@ public class OTOSTester extends LinearOpMode {
     private DcMotorEx frontRightDrive = null;
     private DcMotorEx backRightDrive = null;
     private SparkFunOTOS myOtos;
+
+    private Follower follower;
+    private PathChain squarePath;
+    private FieldManager panelsField;
+    private PoseHistory poseHistory;
 
     @Override
     public void runOpMode() {
@@ -222,7 +231,7 @@ public class OTOSTester extends LinearOpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(1, -1.5, 180); // -90 h for "correct" values
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(1, -1.5, 90); // -90 h for "correct" values
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
@@ -277,5 +286,17 @@ public class OTOSTester extends LinearOpMode {
         telemetry.addLine(String.format("OTOS Hardware Version: v%d.%d", hwVersion.major, hwVersion.minor));
         telemetry.addLine(String.format("OTOS Firmware Version: v%d.%d", fwVersion.major, fwVersion.minor));
         telemetry.update();
+
+
+
+
+
+
+
     }
-}
+
+
+
+
+
+    }
