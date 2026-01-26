@@ -11,12 +11,13 @@ public class BallSpooner
 
     private final HardwareMap _hardwareMap;
     private final Telemetry _telemetry;
-    long elapTrigger = 500;
+    long elapTrigger = 400;
     long startMs = 0;
     FiringEnum currentState = FiringEnum.REST;
 
     double serverStart = 1.0;
     double serverFired = .5;
+
 
     public BallSpooner(HardwareMap hardwareMap, Telemetry telemetry)
     {
@@ -24,6 +25,17 @@ public class BallSpooner
         _hardwareMap = hardwareMap;
         init();
     }
+
+    public boolean isREST(){
+        if (currentState == FiringEnum.REST){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+
 
     // Enum for tracking target
     private enum FiringEnum {

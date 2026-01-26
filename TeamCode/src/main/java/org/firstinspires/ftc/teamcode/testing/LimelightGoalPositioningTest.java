@@ -78,7 +78,8 @@ public class LimelightGoalPositioningTest extends LinearOpMode {
                         double z = botpose.getPosition().z;
 
                         double distanceCm = Math.sqrt(x * x + y * y + z * z) * 100.0;
-                        telemetry.addData("AprilTag Distance (cm)", "%.1f", distanceCm);
+                        double distanceIn = distanceCm * 0.393701;
+                        telemetry.addData("AprilTag Distance (in)", "%.1f", distanceIn);
                     }
 
                     // -------- PID Turn Control --------

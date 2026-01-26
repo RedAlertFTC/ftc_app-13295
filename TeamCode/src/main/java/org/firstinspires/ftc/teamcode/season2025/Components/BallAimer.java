@@ -2,14 +2,18 @@ package org.firstinspires.ftc.teamcode.season2025.Components;
 
 public class BallAimer
 {
-    private double MaxRange = 150;
+    private double MaxRange = 123.5;
     private double AmountOfZones = 20;
-    private double MaxPower = 2400;   // max launcher velocity
-    private double MaxAngle = 1;      // max angle in radians or servo units?
+    private double MaxPower = 1300;   // max launcher velocity
+    private double MinPower = 1100;
+    private double MaxAngle = 0.55;      // max angle in radians or servo units?
 
     public double DesiredRange;
     public double DesiredPower;
     public double DesiredAngle;
+    public double PowerChange;
+    public double PowerPerZone;
+    public double PowerAddition;
     public int CurrentZone;
 
     public void calculateCurrentZone(double _desiredRange){
@@ -24,14 +28,16 @@ public class BallAimer
     }
 
     public void calculateDesiredPower(){
-        // Scale linearly by zone
-        double powerPerZone = MaxPower / AmountOfZones;
-        DesiredPower = powerPerZone * CurrentZone;
+        PowerChange = MaxPower - MinPower;
+         PowerPerZone = PowerChange / AmountOfZones;
+         PowerAddition = PowerPerZone * CurrentZone;
+         DesiredPower = MinPower + PowerAddition;
     }
 
     public void calculateDesiredAngle(){
         // Scale linearly by zone
-        double anglePerZone = MaxAngle / AmountOfZones;
-        DesiredAngle = anglePerZone * CurrentZone;
+//        double anglePerZone = MaxAngle / AmountOfZones;
+//        DesiredAngle = anglePerZone * CurrentZone;
+
     }
 }
