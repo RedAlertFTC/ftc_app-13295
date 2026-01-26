@@ -63,15 +63,25 @@ public class Turntable
 
     public void increaseIndex() {
 
-        if (_currentSlot < MAX_SLOT ){
+
+        if (_ballSpooner != null && !_ballSpooner.isREST()){
+            return;
+        }
+        if (_currentSlot < MAX_SLOT){
             _currentSlot++;
         }
+
     }
 
     public void decreaseIndex() {
+
+        if (_ballSpooner != null && !_ballSpooner.isREST()){
+            return;
+        }
         if(_currentSlot > MIN_SLOT){
             _currentSlot--;
         }
+
     }
 
     public void moveToIndex(int index){

@@ -42,6 +42,7 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallIntake;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.GoalPositioning;
+import org.firstinspires.ftc.teamcode.season2025.Components.LightController;
 import org.firstinspires.ftc.teamcode.season2025.Components.LimelightGoalPositioning;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
@@ -100,6 +101,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private BallIntake _ballIntake;
     private BallSpooner _ballSpooner;
     private GoalPositioning _goalPositioning;
+    private LightController _lightController;
     private LimelightGoalPositioning _limelightGoalPositioning;
     private DisasterGamePad _driverOneGamepad;
     private DisasterGamePad _driverTwoGamepad;
@@ -120,6 +122,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private double launcherIncrement = 0.05F;
     private int goalAprilTag;
     private boolean forwardDriving = true;
+
 
 
     @Override
@@ -232,6 +235,7 @@ public class DecodeV1Teleop extends LinearOpMode
             frontRightDrive.setPower(frontRightPower);
             backLeftDrive.setPower(backLeftPower);
             backRightDrive.setPower(backRightPower);
+
 
 
             if(_popBall.getRise()) {
@@ -390,6 +394,8 @@ public class DecodeV1Teleop extends LinearOpMode
     }
 
     void hardwareInit() {
+
+        _lightController = new LightController(hardwareMap, telemetry);
 
         if (FeatureFlags.launchEnabled()) {
             _ballLauncher = new BallLauncher(hardwareMap, telemetry);
