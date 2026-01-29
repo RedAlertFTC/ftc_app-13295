@@ -42,6 +42,7 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallIntake;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.GoalPositioning;
+import org.firstinspires.ftc.teamcode.season2025.Components.LightColor;
 import org.firstinspires.ftc.teamcode.season2025.Components.LightController;
 import org.firstinspires.ftc.teamcode.season2025.Components.LimelightGoalPositioning;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
@@ -119,6 +120,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private DebouncedButton _launcherPresetOne;
     private DebouncedButton _launcherPresetTwo;
     private DebouncedButton _launcherPresetThree;
+    private DebouncedButton _turnOffLauncher;
     private double launcherIncrement = 0.05F;
     private int goalAprilTag;
     private boolean forwardDriving = true;
@@ -364,14 +366,22 @@ public class DecodeV1Teleop extends LinearOpMode
 
                 if (_launcherPresetOne.getRise()){
                     _ballLauncher.setLaunchPresetOne();
+                    _lightController.SetColor(LightColor.WHITE);
                 }
 
                 if (_launcherPresetTwo.getRise()){
                     _ballLauncher.setLaunchPresetTwo();
+                    _lightController.SetColor(LightColor.BLUE);
                 }
 
                 if (_launcherPresetThree.getRise()){
                     _ballLauncher.setLaunchPresetThree();
+                    _lightController.SetColor(LightColor.GREEN);
+                }
+
+                if (_turnOffLauncher.getRise()){
+                    _ballLauncher.turnOffLauncher();
+                    _lightController.SetColor(LightColor.OFF);
                 }
 
 
@@ -444,6 +454,7 @@ public class DecodeV1Teleop extends LinearOpMode
         _launcherPresetOne = new DebouncedButton(_driverTwoGamepad.getXButton());
         _launcherPresetTwo = new DebouncedButton(_driverTwoGamepad.getYButton());
         _launcherPresetThree = new DebouncedButton(_driverTwoGamepad.getBButton());
+        _turnOffLauncher = new DebouncedButton(_driverTwoGamepad.getRightStickButton());
 
         //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }

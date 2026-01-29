@@ -2,10 +2,10 @@
 
 Controller 1: Driving, Intake
 
-    - Button A:
+    - Button A: Reverse robot direction
     - Button B:
     - Button X:
-    - Button Y: 
+    - Button Y: Enable Auto
 
     - Button UpDpad:
     - Button DownDpad:
@@ -24,14 +24,14 @@ Controller 1: Driving, Intake
 Controller 2: Turntable, Launcher
 
     - Button A: Shoot
-    - Button B: Speed up launcher
-    - Button X: Slow down launcher
-    - Button Y:
+    - Button B:Preset 3
+    - Button X:Preset 1
+    - Button Y:Preset 2
 
     - Button UpDpad: AimUp
     - Button DownDpad: AimDown
-    - Button RightDpad:
-    - Button LeftDpad:
+    - Button RightDpad: Speed up launcher
+    - Button LeftDpad: Slow down launcher
 
     - Button RT:
     - Button LT:
