@@ -21,12 +21,13 @@ public class Turntable
     private BallSpooner _ballSpooner;
 
     private int _currentSlot = 2;
-    public double _currentPosition = 0.5;
+    public double _currentPosition = 0.55;
     private int MAX_SLOT = 3;
     private int MIN_SLOT = 1;
 
-    private double MIN_POSITION = .05;
-    private double MAX_POSITION = .95;
+    private double MIN_POSITION = 0;
+    private double MIDDLE_POSITION = 0.475;
+    private double MAX_POSITION = 0.92;
 
     double turntableIncrement;
 
@@ -48,7 +49,7 @@ public class Turntable
     private void init()
     {
         _turntable = _hardwareMap.get(Servo.class, "turntable");
-        _turntable.setPosition(_currentPosition);
+        _turntable.setPosition(MIDDLE_POSITION);
     }
 
 
@@ -92,14 +93,17 @@ public class Turntable
     {
         if(_currentSlot == 1){
             _turntable.setPosition(MIN_POSITION);
+            _currentPosition = MIN_POSITION;
         }
 
         if(_currentSlot == 2){
-            _turntable.setPosition(0.5);
+            _turntable.setPosition(MIDDLE_POSITION);
+            _currentPosition = MIDDLE_POSITION;
         }
 
         if(_currentSlot == 3){
             _turntable.setPosition(MAX_POSITION);
+            _currentPosition = MAX_POSITION;
         }
     }
 

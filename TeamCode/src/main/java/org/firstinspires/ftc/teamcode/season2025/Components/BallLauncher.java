@@ -24,7 +24,7 @@ public class BallLauncher {
     private double MIN_RPM = 5;
     private double RPM_INCREMENT = 5;
     private double _increment = 0.05;
-    private double currentPos;
+    private double currentPos = 0.5;
     private double newPos;
     double currentTPS = 0;
     private double firingTPS = 500.0;
@@ -67,7 +67,7 @@ public class BallLauncher {
         rightLaunchMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         linearServo = _hardwareMap.get(Servo.class, "linearServo");
-        linearServo.setPosition(0.25);
+        linearServo.setPosition(currentPos);
 
 //        rightLaunchMotor.setPower(_currentPower);
 //        leftLaunchMotor.setPower(_currentPower);
@@ -182,22 +182,24 @@ public class BallLauncher {
         currentPos -= INCREMENT;
         if(currentPos < 0.25) currentPos = 0.25;
         linearServo.setPosition(currentPos);
+
     }
 
     public void setLauncherAngle(double pos){
+
         linearServo.setPosition(pos);
     }
 
     public void setLaunchPresetOne(){
-        currentTPS = 1100;
-        currentPos = 0.4;
+        currentTPS = 850;
+        currentPos = 0.45;
         linearServo.setPosition(currentPos);
         leftLaunchMotor.setVelocity(currentTPS);
         rightLaunchMotor.setVelocity(currentTPS);
     }
 
     public void setLaunchPresetTwo(){
-        currentTPS = 1200;
+        currentTPS = 950;
         currentPos = 0.55;
         linearServo.setPosition(currentPos);
         leftLaunchMotor.setVelocity(currentTPS);
@@ -212,5 +214,12 @@ public class BallLauncher {
         rightLaunchMotor.setVelocity(currentTPS);
     }
 
+    public void turnOffLauncher(){
+        currentTPS = 0;
+        currentPos = 0.4;
+        linearServo.setPosition(currentPos);
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
 
 }
