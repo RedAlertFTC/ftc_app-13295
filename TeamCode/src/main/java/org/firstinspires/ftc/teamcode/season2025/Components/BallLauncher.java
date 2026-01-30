@@ -90,7 +90,7 @@ public class BallLauncher {
         rightLaunchMotor.setPower(_currentPower);
         leftLaunchMotor.setPower(_currentPower);
 
-        _telemetry.addData("increased launch speed", "");
+       // _telemetry.addData("increased launch speed", "");
         _telemetry.update();
     }
 

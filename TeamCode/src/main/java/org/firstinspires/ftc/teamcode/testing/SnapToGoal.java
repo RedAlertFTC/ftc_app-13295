@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 @TeleOp(name="SnapToGoal", group="LinearOpMode" )
 public class SnapToGoal extends LinearOpMode {
     private Limelight3A limelight;
-    private HardwareMap hardwareMap;
+
     private DcMotorEx frontLeftDrive, backLeftDrive, frontRightDrive, backRightDrive;
 
     private enum RobotStatus {
@@ -65,6 +65,8 @@ public class SnapToGoal extends LinearOpMode {
                     double forwardDistanceInches = forwardDistanceMeters * 39.37;
                     double totalDistanceInches = totalDistanceMeters * 39.37;
 
+                    double distance = result.getBotpose().getPosition().z;
+
 
                     telemetry.addData("tx", result.getTx());
                     telemetry.addData("ty", result.getTy());
@@ -94,8 +96,6 @@ public class SnapToGoal extends LinearOpMode {
                     break;
 
             }
-
-
         }
     }
 

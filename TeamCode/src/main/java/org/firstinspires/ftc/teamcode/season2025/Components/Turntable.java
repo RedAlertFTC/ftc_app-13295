@@ -20,7 +20,7 @@ public class Turntable
 
     private BallSpooner _ballSpooner;
 
-    private int _currentSlot = 2;
+    private int _currentSlot = 1;
     public double _currentPosition = 0.55;
     private int MAX_SLOT = 3;
     private int MIN_SLOT = 1;

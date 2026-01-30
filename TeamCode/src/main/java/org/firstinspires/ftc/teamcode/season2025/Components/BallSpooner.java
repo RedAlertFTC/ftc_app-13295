@@ -16,7 +16,7 @@ public class BallSpooner
     FiringEnum currentState = FiringEnum.REST;
 
     double serverStart = 1.0;
-    double serverFired = .5;
+    double serverFired = .75;
 
 
     public BallSpooner(HardwareMap hardwareMap, Telemetry telemetry)
@@ -66,7 +66,7 @@ public class BallSpooner
 
     public void updateSpoonerState() {
 
-        _telemetry.addData("Servo:State", currentState);
+        //_telemetry.addData("Servo:State", currentState);
 
         switch (currentState)
         {
