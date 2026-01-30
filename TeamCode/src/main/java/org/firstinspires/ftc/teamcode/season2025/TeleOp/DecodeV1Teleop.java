@@ -29,13 +29,15 @@
 
 package org.firstinspires.ftc.teamcode.season2025.TeleOp;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.corelib.control.DebouncedButton;
 import org.firstinspires.ftc.teamcode.corelib.control.DisasterGamePad;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallIntake;
@@ -44,7 +46,6 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.GoalPositioning;
 import org.firstinspires.ftc.teamcode.season2025.Components.LightColor;
 import org.firstinspires.ftc.teamcode.season2025.Components.LightController;
-import org.firstinspires.ftc.teamcode.season2025.Components.LimelightGoalPositioning;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.testing.PedroTesting;
@@ -95,6 +96,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private DcMotorEx backLeftDrive = null;
     private DcMotorEx frontRightDrive = null;
     private DcMotorEx backRightDrive = null;
+    private Limelight3A limelight;
 
     private BallLauncher _ballLauncher;
     private Turntable _turntable;
@@ -103,7 +105,7 @@ public class DecodeV1Teleop extends LinearOpMode
     private BallSpooner _ballSpooner;
     private GoalPositioning _goalPositioning;
     private LightController _lightController;
-    private LimelightGoalPositioning _limelightGoalPositioning;
+
     private DisasterGamePad _driverOneGamepad;
     private DisasterGamePad _driverTwoGamepad;
 
@@ -129,6 +131,17 @@ public class DecodeV1Teleop extends LinearOpMode
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        telemetry.setMsTransmissionInterval(11);
+
+        limelight.pipelineSwitch(0);
+
+        /*
+         * Starts polling for data.
+         */
+        limelight.start();
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -167,7 +180,7 @@ public class DecodeV1Teleop extends LinearOpMode
         runtime.reset();
 
         // Wait for the game to start (driver presses START)
-        telemetry.addData("Status", "Initialized");
+       // telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         // run until the end of the match (driver presses STOP)
@@ -239,6 +252,45 @@ public class DecodeV1Teleop extends LinearOpMode
             backRightDrive.setPower(backRightPower);
 
 
+            LLResult result = limelight.getLatestResult();
+            if (result != null) {
+
+
+                if (result.isValid()) {
+                    Pose3D botpose = result.getBotpose();
+
+                    // Position is in meters
+                    double x = botpose.getPosition().x;
+                    double y = botpose.getPosition().y;
+                    double z = botpose.getPosition().z;
+
+                    // Distances
+                    double forwardDistanceMeters = z;
+                    double totalDistanceMeters = Math.sqrt(x*x + y*y + z*z);
+
+                    // Convert to inches
+                    double forwardDistanceInches = forwardDistanceMeters * 39.37;
+                    double totalDistanceInches = totalDistanceMeters * 39.37;
+
+                    double distance = result.getBotpose().getPosition().z;
+
+
+                    telemetry.addData("tx", result.getTx());
+                    telemetry.addData("ty", result.getTy());
+                    telemetry.addData("Botpose", botpose.toString());
+                    telemetry.addData("Distance", distance);
+                    telemetry.addData("Forward Distance (in)", "%.1f", forwardDistanceInches);
+                    telemetry.addData("Total Distance (in)", "%.1f", totalDistanceInches);
+
+                }
+                else {
+                    telemetry.addLine("Not valid tag");
+                }
+            }
+            else {
+                telemetry.addLine("No tag detected");
+            }
+
 
             if(_popBall.getRise()) {
                 //telemetry.addData("Gamepad2:A", "pressed");
@@ -267,8 +319,8 @@ public class DecodeV1Teleop extends LinearOpMode
                     //_ballLauncher.decreaseLauncherSpeedByRPM();
                     _ballLauncher.decreaseLauncherSpeedByTPS();
                 }
-                telemetry.addData("Launch:TPS", _ballLauncher.getCurrentTPS());
-                telemetry.addData("Launch:RPM", _ballLauncher.getCurrentRPM());
+               // telemetry.addData("Launch:TPS", _ballLauncher.getCurrentTPS());
+              //  telemetry.addData("Launch:RPM", _ballLauncher.getCurrentRPM());
                 telemetry.addData("Launch:Left:Velocity", _ballLauncher.getLeftVelocity());
                 telemetry.addData("Launch:Right:Velocity", _ballLauncher.getRightVelocity());
 
@@ -286,12 +338,12 @@ public class DecodeV1Teleop extends LinearOpMode
             if(FeatureFlags.turnTableEnabled()) {
 
                 if (_increaseIndex.getRise()){
-                    telemetry.addData("Increase Index Presssed", "True");
+                   // telemetry.addData("Increase Index Presssed", "True");
                     //increase index
                     _turntable.increaseIndex();
                 }
                 else if(_decreaseIndex.getRise()){
-                    telemetry.addData("Decrease Index Presssed", "True");
+                    //telemetry.addData("Decrease Index Presssed", "True");
                     //decrease index
                     _turntable.decreaseIndex();
                 }
@@ -358,30 +410,31 @@ public class DecodeV1Teleop extends LinearOpMode
 
             // Show the elapsed game time and wheel power.
            // telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+          //  telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
+            //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
 
             if(FeatureFlags.launchEnabled())
             {
 
                 if (_launcherPresetOne.getRise()){
                     _ballLauncher.setLaunchPresetOne();
-                    _lightController.SetColor(LightColor.WHITE);
+                    _lightController.SetLightOne(LightColor.BLUE);
+
                 }
 
                 if (_launcherPresetTwo.getRise()){
                     _ballLauncher.setLaunchPresetTwo();
-                    _lightController.SetColor(LightColor.BLUE);
+                    _lightController.SetLightOne(LightColor.YELLOW);
                 }
 
                 if (_launcherPresetThree.getRise()){
                     _ballLauncher.setLaunchPresetThree();
-                    _lightController.SetColor(LightColor.GREEN);
+                    _lightController.SetLightOne(LightColor.WHITE);
                 }
 
                 if (_turnOffLauncher.getRise()){
                     _ballLauncher.turnOffLauncher();
-                    _lightController.SetColor(LightColor.OFF);
+                    _lightController.SetLightOne(LightColor.OFF);
                 }
 
 
