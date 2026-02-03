@@ -28,7 +28,8 @@ public class Constants {
     public static OTOSConstants localizerConstants = new OTOSConstants()
             .hardwareMapName("otos")
             .linearUnit(DistanceUnit.INCH)
-            .offset(new SparkFunOTOS.Pose2D(1, 1.5, 90))
+            .linearScalar(42.0)
+            .offset(new SparkFunOTOS.Pose2D(0.5, -1.25, 90))
             .angleUnit(AngleUnit.RADIANS);
 
     public static MecanumConstants driveConstants = new MecanumConstants()

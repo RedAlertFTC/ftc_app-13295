@@ -26,61 +26,48 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="DecodeV2AutoOp", group = "Robot")
-@Disabled
-public class DecodeV2AutoOp extends LinearOpMode {
+import kotlin.jvm.internal.Ref;
 
-    private AutoStates autoStates;
-    public autoAlliance _autoAlliance;
+@Autonomous(name="ShootingAuto", group = "Robot")
+public class ShootingAuto extends LinearOpMode {
+
     private SparkFunOTOS myOtos;
 
-    public enum autoAlliance {
-        RED,
-        BLUE
+    private enum FireState {
+        IDLE,
+        START_LAUNCHER,
+        LOAD_1,
+        FIRE_1,
+        LOAD_2,
+        FIRE_2,
+        LOAD_3,
+        FIRE_3,
+        STARTING,
+        FIRING,
+        LOADING,
+        COMPLETE
     }
 
-    private enum AutoStates{
-        ESCAPING,
-        FINDINGTAG,
-        LAUNCHING,
-        COLLECTING,
-        FINAL,
-    }
 
-    final double DESIRED_DISTANCE = 50.0;  // Target distance to tag (inches)
-    final double DESIRED_YAW = -10;
-
-    final double SPEED_GAIN  = 0.02;
-    final double STRAFE_GAIN = 0.015;
-    final double TURN_GAIN   = 0.01;
-
-    final double MAX_AUTO_SPEED = 0.5;
-    final double MAX_AUTO_STRAFE= 0.5;
-    final double MAX_AUTO_TURN  = 0.3;
+    private FireState firingState = FireState.IDLE;
 
     private DcMotor frontLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
-
-    private static final boolean USE_WEBCAM = true;
-    private static boolean FINDING_TARGET = true;
-    private int goalAprilTagId = -1;
-    private VisionPortal visionPortal;
-    private AprilTagProcessor aprilTag;
-    private AprilTagDetection desiredTag = null;
+    private boolean launchReady = false;
+    private boolean strafeReady = false;
 
     private BallLauncher _ballLauncher;
     private Turntable _turntable;
     private BallSpooner _ballSpooner;
-    private BallAimer _ballAimer;
+
     private ElapsedTime runtime = new ElapsedTime();
     private static final double RUN_TIME = 3;
 
     @Override
     public void runOpMode() {
 
-        initAprilTag();
 
         frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
         frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
@@ -93,7 +80,7 @@ public class DecodeV2AutoOp extends LinearOpMode {
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        _ballAimer = new BallAimer();
+
 
         if (FeatureFlags.launchEnabled()){
             _ballLauncher = new BallLauncher(hardwareMap, telemetry);
@@ -107,170 +94,39 @@ public class DecodeV2AutoOp extends LinearOpMode {
             _ballSpooner = new BallSpooner(hardwareMap, telemetry);
         }
 
-        if (USE_WEBCAM)
-            setManualExposure(6, 250);
-
-        autoStates = AutoStates.ESCAPING;
-
         configureOtos();
 
-        telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch START to start OpMode");
         telemetry.update();
         waitForStart();
 
         while (opModeIsActive()){
 
-            SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+            _ballSpooner.updateSpoonerState();
+            ShootAllBalls();
 
-            switch (autoStates){
+            update();
 
-                case ESCAPING:
-                    escapeWall();
-                    break;
-                case FINDINGTAG:
-                    //shootingPos();
-                    break;
-                case LAUNCHING:
-                    if (FeatureFlags.launchEnabled() && FeatureFlags.ballSpoonerEnabled() && FeatureFlags.turnTableEnabled()){
-                       // launchAllBalls();
-                    }
-                    break;
-                case COLLECTING:
-                    break;
-                case FINAL:
-                    break;
-            }
-
-            telemetry.update();
         }
     }
 
-    private void setManualExposure(int exposureMS, int gain) {
-        if (visionPortal == null) return;
 
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            telemetry.addData("Camera", "Waiting");
-            telemetry.update();
-            while (!isStopRequested() && visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-                sleep(20);
-            }
-            telemetry.addData("Camera", "Ready");
-            telemetry.update();
-        }
-
-        if (!isStopRequested()) {
-            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
-            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
-                exposureControl.setMode(ExposureControl.Mode.Manual);
-                sleep(50);
-            }
-            exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
-            sleep(20);
-            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
-            gainControl.setGain(gain);
-            sleep(20);
-        }
+    boolean isBusy = false;
+    public boolean isBusy() {
+        return isBusy;
     }
 
-    public void moveRobot(double x, double y, double yaw) {
-        double frontLeftPower    =  x - y - yaw;
-        double frontRightPower   =  x + y + yaw;
-        double backLeftPower     =  x + y - yaw;
-        double backRightPower    =  x - y + yaw;
+    public void update() {
 
-        double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
-        max = Math.max(max, Math.abs(backLeftPower));
-        max = Math.max(max, Math.abs(backRightPower));
-
-        if (max > 1.0) {
-            frontLeftPower /= max;
-            frontRightPower /= max;
-            backLeftPower /= max;
-            backRightPower /= max;
-        }
-
-        frontLeftDrive.setPower(frontLeftPower);
-        frontRightDrive.setPower(frontRightPower);
-        backLeftDrive.setPower(backLeftPower);
-        backRightDrive.setPower(backRightPower);
-    }
-
-    private void initAprilTag() {
-        aprilTag = new AprilTagProcessor.Builder().build();
-        aprilTag.setDecimation(2);
-
-        if (USE_WEBCAM) {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .addProcessor(aprilTag)
-                    .build();
-        } else {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(BuiltinCameraDirection.BACK)
-                    .addProcessor(aprilTag)
-                    .build();
-        }
-    }
-
-    private boolean shootingPos() {
-
-        boolean targetFound = false;
-        double drive = 0;
-        double strafe = 0;
-        double turn = 0;
-
-        desiredTag = null;  // reset at start
-
-        // Look for a valid tag
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null && (goalAprilTagId < 0 || detection.id == goalAprilTagId)) {
-                targetFound = true;
-                desiredTag = detection;
-                FINDING_TARGET = false;
+        switch (firingState) {
+            case IDLE:
+                firingState = FireState.START_LAUNCHER;
+                _turntable.moveToIndex(1);
+                _ballLauncher.setLaunchPresetTwo();
                 break;
-            }
+            case FIRE_1:
+                break;
         }
-
-        if (targetFound && desiredTag != null) {
-            // Display telemetry for found tag
-            telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-            telemetry.addData("Range",  "%5.1f inches", desiredTag.ftcPose.range);
-            telemetry.addData("Bearing","%3.0f degrees", desiredTag.ftcPose.bearing);
-            telemetry.addData("Yaw","%3.0f degrees", desiredTag.ftcPose.yaw);
-
-            // Compute errors
-            double rangeError = desiredTag.ftcPose.range - DESIRED_DISTANCE;
-            double lateralError = desiredTag.ftcPose.range * Math.sin(Math.toRadians(desiredTag.ftcPose.bearing));
-            double yawError = desiredTag.ftcPose.yaw;
-
-            // Deadband check: stop if very close to desired distance and roughly aligned
-            if (Math.abs(rangeError) < 1.0 && Math.abs(lateralError) < 1.0 && Math.abs(yawError) < 2.0) {
-                stopMoving();
-                autoStates = AutoStates.LAUNCHING;
-                telemetry.addLine("Robot at desired position — stopping");
-            } else {
-                // Calculate movements
-                drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-                strafe = Range.clip(lateralError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
-                turn = Range.clip(yawError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
-
-                moveRobot(-drive, -strafe, turn);
-            }
-
-        } else {
-            // No tag found — spin in place to search
-            telemetry.addLine("No valid AprilTag detected — spinning to search");
-            spin();
-        }
-
-        //telemetry.update();
-        return targetFound;
     }
-
-
-
 
     public void stopMoving(){
         frontLeftDrive.setPower(0);
@@ -286,8 +142,24 @@ public class DecodeV2AutoOp extends LinearOpMode {
         backRightDrive.setPower(0.5);
     }
 
-    private void launchAllBalls(){
-        _ballLauncher.setLaunchPresetTwo();
+    private void StrafeLeft(){
+        frontLeftDrive.setPower(-0.5);
+        backLeftDrive.setPower(0.5);
+        frontRightDrive.setPower(0.5);
+        backRightDrive.setPower(-0.5);
+    }
+
+    public void Forward(){
+        frontLeftDrive.setPower(0.5);
+        backLeftDrive.setPower(0.5);
+        frontRightDrive.setPower(0.5);
+        backRightDrive.setPower(0.5);
+    }
+
+
+    private void ShootAllBalls(){
+
+        _ballLauncher.setLaunchPresetOne();
         sleep(2000);
         _turntable.moveToIndex(1);
         sleep(1000);
@@ -300,37 +172,9 @@ public class DecodeV2AutoOp extends LinearOpMode {
         _turntable.moveToIndex(3);
         sleep(1000);
         _ballSpooner.fire();
+
     }
 
-    private void escapeWall(){
-        if (myOtos.getPosition().x <= 35.5 ){
-
-            frontLeftDrive.setPower(-1);
-            frontRightDrive.setPower(-1);
-            backLeftDrive.setPower(-1);
-            backRightDrive.setPower(-1);
-
-        }
-        else {
-            stopMoving();
-        }
-
-        if (myOtos.getPosition().y <= 9.5) {
-
-            frontLeftDrive.setPower(1);
-            frontRightDrive.setPower(-1);
-            backLeftDrive.setPower(-1);
-            backRightDrive.setPower(1);
-
-        }
-        else {
-            stopMoving();
-        }
-    }
-
-    public void setAprilTagID(int aprilTagID){
-        goalAprilTagId = aprilTagID;
-    }
 
     private void configureOtos() {
         telemetry.addLine("Configuring OTOS...");

@@ -64,6 +64,9 @@ public class BallSpooner
         servo.setPosition(serverStart);
     }
 
+    private int _fireCounter = 0;
+
+
     public void updateSpoonerState() {
 
         //_telemetry.addData("Servo:State", currentState);
@@ -76,6 +79,7 @@ public class BallSpooner
                 currentState = FiringEnum.FIRING;
                 startMs = System.currentTimeMillis();
                 servo.setPosition(serverFired);
+                _fireCounter++;
                 break;
             case FIRING:
                 if(System.currentTimeMillis() > (startMs + elapTrigger)){

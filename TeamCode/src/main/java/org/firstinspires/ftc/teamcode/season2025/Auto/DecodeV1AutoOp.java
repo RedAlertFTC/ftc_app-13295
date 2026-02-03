@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.season2025.Auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -90,7 +91,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Autonomous(name="DecodeV1AutoOp", group = "Robot")
-
+@Disabled
 public class DecodeV1AutoOp extends LinearOpMode
 {
 
