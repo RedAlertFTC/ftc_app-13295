@@ -43,6 +43,8 @@ public class SnapToGoal extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
 
 
+        waitForStart();
+
 
         while (opModeIsActive()) {
 
@@ -73,10 +75,13 @@ public class SnapToGoal extends LinearOpMode {
                     telemetry.addData("Botpose", botpose.toString());
                     telemetry.addData("Forward Distance (in)", "%.1f", forwardDistanceInches);
                     telemetry.addData("Total Distance (in)", "%.1f", totalDistanceInches);
+                    telemetry.update();
 
                     robotStatus = RobotStatus.SNAPPING;
                 }
             }
+            telemetry.addLine("No tag detected");
+            telemetry.update();
 
             // STATE MACHINE
             switch (robotStatus) {
@@ -101,10 +106,10 @@ public class SnapToGoal extends LinearOpMode {
 
 
     private void Spin() {
-        frontLeftDrive.setPower(0.5);
-        backLeftDrive.setPower(0.5);
-        frontRightDrive.setPower(-0.5);
-        backRightDrive.setPower(-0.5);
+        frontLeftDrive.setPower(0.25);
+        backLeftDrive.setPower(0.25);
+        frontRightDrive.setPower(-0.25);
+        backRightDrive.setPower(-0.25);
     }
 
     private void TweakLeft(){

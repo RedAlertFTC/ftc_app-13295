@@ -507,7 +507,7 @@ public class DecodeV1Teleop extends LinearOpMode
         _launcherPresetOne = new DebouncedButton(_driverTwoGamepad.getXButton());
         _launcherPresetTwo = new DebouncedButton(_driverTwoGamepad.getYButton());
         _launcherPresetThree = new DebouncedButton(_driverTwoGamepad.getBButton());
-        _turnOffLauncher = new DebouncedButton(_driverTwoGamepad.getRightStickButton());
+        _turnOffLauncher = new DebouncedButton(_driverTwoGamepad.getLeftStickButton());
 
         //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }
