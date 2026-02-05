@@ -1,75 +1,37 @@
-package org.firstinspires.ftc.teamcode.season2025.Auto;
+package org.firstinspires.ftc.teamcode.testing;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.season2025.Components.BallAimer;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import kotlin.jvm.internal.Ref;
-
-@Autonomous(name="ShootingAuto", group = "Robot")
-public class ShootingAuto extends LinearOpMode {
-
+@Autonomous(name="AutoShootingTest", group = "Robot")
+public class AutoShootingTest extends LinearOpMode
+{
     private SparkFunOTOS myOtos;
-
-    private enum FireState {
-        IDLE,
-        START_LAUNCHER,
-        WAIT_FOR_LAUNCHER,
-        FIRE,
-        WAIT_FOR_FIRE,
-        ADVANCE_TURNTABLE,
-        WAIT_FOR_TURNTABLE,
-        DONE
-    }
-
-
-
-    private FireState firingState = FireState.IDLE;
-
-    private final ElapsedTime stateTimer = new ElapsedTime();
 
     private DcMotor frontLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor backRightDrive = null;
-    private boolean launchReady = false;
-    private boolean strafeReady = false;
 
     private BallLauncher _ballLauncher;
     private Turntable _turntable;
     private BallSpooner _ballSpooner;
-
-    long elapTrigger = 5000;
-    long startMs = 0;
-
+    private int currentStage = 0;
+    private double stageTime = 2.5;
     private ElapsedTime runtime = new ElapsedTime();
-    private static final double RUN_TIME = 3;
 
     @Override
     public void runOpMode() {
-
 
         frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
         frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
@@ -81,8 +43,6 @@ public class ShootingAuto extends LinearOpMode {
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
-
-
 
         if (FeatureFlags.launchEnabled()){
             _ballLauncher = new BallLauncher(hardwareMap, telemetry);
@@ -98,172 +58,57 @@ public class ShootingAuto extends LinearOpMode {
 
         configureOtos();
 
-        telemetry.update();
+        runtime.reset();
         waitForStart();
 
-        startMs = System.currentTimeMillis();
+        while (opModeIsActive()) {
 
-        setExpiration(FireState.IDLE, 2000);
+            switch (currentStage) {
 
-        while (opModeIsActive()){
+                case 0:
+                    if (_ballLauncher != null)
+                        _ballLauncher.setLaunchPresetTwo();
+                    break;
 
-            //_ballSpooner.updateSpoonerState();
-            //ShootAllBalls();
+                case 1:
+                    if (_turntable != null)
+                        _turntable.moveToIndex(1);
+                    break;
 
+                case 2:
+                    if (_ballSpooner != null)
+                        _ballSpooner.fire();
+                    break;
 
-            update();
+                case 3:
+                    if (_turntable != null)
+                        _turntable.moveToIndex(2);
+                    break;
 
+                case 4:
+                    if (_ballSpooner != null) {
+                        _ballSpooner.fire();
+                    }
+                    break;
+
+                case 5:
+                    if (_turntable != null)
+                        _turntable.moveToIndex(3);
+                    break;
+
+                case 6:
+                    if (_ballSpooner != null) {
+                        _ballSpooner.fire();
+                    }
+                    break;
+            }
+
+            if (runtime.seconds() >= stageTime) {
+                currentStage++;
+                runtime.reset();
+            }
         }
     }
-
-
-    boolean isBusy = false;
-    public boolean isBusy() {
-        return isBusy;
-    }
-
-
-
-    public void update() {
-
-        switch (firingState) {
-
-            case START_LAUNCHER:
-                //_ballLauncher.setLaunchPresetThree();
-                stateTimer.reset();
-                firingState = FireState.WAIT_FOR_LAUNCHER;
-                break;
-
-            case WAIT_FOR_LAUNCHER:
-                //if (_ballLauncher.isReadyToFire(36.0)) {
-                //    firingState = FireState.FIRE;
-                //}
-                firingState = FireState.FIRE;
-                break;
-
-            case IDLE:
-                if(isExpired(FireState.IDLE)) {
-                    firingState = FireState.FIRE;
-                    setExpiration(FireState.FIRE, 2000);
-                }
-                break;
-            case FIRE:
-
-                _ballSpooner.fire();
-                if(isExpired(FireState.FIRE)) {
-                    firingState = FireState.IDLE;
-                    setExpiration(FireState.IDLE, 500);
-                }
-
-
-                //stateTimer.reset();
-
-
-//                if (!_ballSpooner.isBusy()) {
-//                    _ballSpooner.fire();
-//                    firingState = FireState.IDLE;
-//                    //firingState = FireState.WAIT_FOR_FIRE;
-//                }
-
-                break;
-
-            case WAIT_FOR_FIRE:
-                if (!_ballSpooner.isBusy() && stateTimer.seconds() > 0.3) {
-                    firingState = FireState.ADVANCE_TURNTABLE;
-                }
-                break;
-
-            case ADVANCE_TURNTABLE:
-                if (_turntable.currentSlot() < 3) {
-                    _turntable.increaseIndex();
-                    stateTimer.reset();
-                    firingState = FireState.WAIT_FOR_TURNTABLE;
-                } else {
-                    firingState = FireState.DONE;
-                }
-                break;
-
-            case WAIT_FOR_TURNTABLE:
-                if (!_turntable.isBusy() && stateTimer.seconds() > 0.2) {
-                    firingState = FireState.FIRE;
-                }
-                break;
-
-            case DONE:
-                // All balls fired — do nothing
-                break;
-        }
-
-        // Always update mechanisms
-        _ballSpooner.updateSpoonerState();
-        _turntable.updateCurrentSlot();
-
-        telemetry.addData("Fire State", firingState);
-        telemetry.addData("Turntable Slot", _turntable.currentSlot());
-        telemetry.addData("Spooner State", _ballSpooner.SpoonerState());
-        telemetry.update();
-    }
-
-
-    private FireState _checkState = null;
-    private long _expiration = 0;
-    private void setExpiration(FireState state, long durationMs) {
-
-        _checkState = state;
-        _expiration = durationMs + System.currentTimeMillis();
-    }
-
-    private boolean isExpired(FireState checkState) {
-         return (checkState == _checkState && System.currentTimeMillis() > _expiration);
-    }
-
-    public void stopMoving(){
-        frontLeftDrive.setPower(0);
-        frontRightDrive.setPower(0);
-        backRightDrive.setPower(0);
-        backLeftDrive.setPower(0);
-    }
-
-    private void spin(){
-        frontLeftDrive.setPower(-0.5);
-        backLeftDrive.setPower(-0.5);
-        frontRightDrive.setPower(0.5);
-        backRightDrive.setPower(0.5);
-    }
-
-    private void StrafeLeft(){
-        frontLeftDrive.setPower(-0.5);
-        backLeftDrive.setPower(0.5);
-        frontRightDrive.setPower(0.5);
-        backRightDrive.setPower(-0.5);
-    }
-
-    public void Forward(){
-        frontLeftDrive.setPower(0.5);
-        backLeftDrive.setPower(0.5);
-        frontRightDrive.setPower(0.5);
-        backRightDrive.setPower(0.5);
-    }
-
-
-    private void ShootAllBalls(){
-
-        _ballLauncher.setLaunchPresetOne();
-        sleep(2000);
-        _turntable.moveToIndex(1);
-        sleep(1000);
-        _ballSpooner.fire();
-        sleep(1000);
-        _turntable.moveToIndex(2);
-        sleep(1000);
-        _ballSpooner.fire();
-        sleep(1000);
-        _turntable.moveToIndex(3);
-        sleep(1000);
-        _ballSpooner.fire();
-
-    }
-
 
     private void configureOtos() {
         telemetry.addLine("Configuring OTOS...");
@@ -351,4 +196,5 @@ public class ShootingAuto extends LinearOpMode {
 
 
     }
+
 }

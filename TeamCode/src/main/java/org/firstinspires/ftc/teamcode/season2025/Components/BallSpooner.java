@@ -11,12 +11,17 @@ public class BallSpooner
 
     private final HardwareMap _hardwareMap;
     private final Telemetry _telemetry;
-    long elapTrigger = 400;
+    long elapTrigger = 500;
     long startMs = 0;
+
+    double stateTime = 0;
+
     FiringEnum currentState = FiringEnum.REST;
 
     double serverStart = 1.0;
     double serverFired = .75;
+
+    public FiringEnum SpoonerState(){ return currentState; }
 
 
     public BallSpooner(HardwareMap hardwareMap, Telemetry telemetry)
@@ -26,13 +31,8 @@ public class BallSpooner
         init();
     }
 
-    public boolean isREST(){
-        if (currentState == FiringEnum.REST){
-            return true;
-        }
-        else{
-            return false;
-        }
+    public boolean isBusy(){
+        return currentState != FiringEnum.REST;
     }
 
 
@@ -45,16 +45,28 @@ public class BallSpooner
         FIRED,
         RESETTING
     }
-    public void fire(){
 
-        if (currentState == FiringEnum.REST){
-            currentState = FiringEnum.FIRE;
-        }
+    long fireAttempt = 0;
+    public long getFireAttempt()
+    {
+        return fireAttempt;
+    }
+    long fireCounter = 0;
 
+    public long getFireCounter() {
+        return fireCounter;
     }
 
-    public void init() {
+    public void fire() {
+        fireAttempt++;
+        if (currentState == FiringEnum.REST){
+            fireCounter++;
+            currentState = FiringEnum.FIRE;
+        }
+    }
 
+    public void init()
+    {
         servo = _hardwareMap.get(Servo.class, "spooningServo");
         double currentPos = servo.getPosition();
 
@@ -64,9 +76,6 @@ public class BallSpooner
         servo.setPosition(serverStart);
     }
 
-    private int _fireCounter = 0;
-
-
     public void updateSpoonerState() {
 
         //_telemetry.addData("Servo:State", currentState);
@@ -74,30 +83,44 @@ public class BallSpooner
         switch (currentState)
         {
             case REST:
+                stateTime = System.currentTimeMillis();
                 break;
             case FIRE:
+                stateTime = System.currentTimeMillis();
                 currentState = FiringEnum.FIRING;
                 startMs = System.currentTimeMillis();
                 servo.setPosition(serverFired);
-                _fireCounter++;
                 break;
             case FIRING:
+                stateTime = System.currentTimeMillis();
                 if(System.currentTimeMillis() > (startMs + elapTrigger)){
                     currentState = FiringEnum.FIRED;
                 }
                 break;
             case FIRED:
-                currentState = FiringEnum.RESETTING;
+                stateTime = System.currentTimeMillis();
                 startMs = System.currentTimeMillis();
+                currentState = FiringEnum.RESETTING;
                 servo.setPosition(serverStart);
                 break;
             case RESETTING:
+                stateTime = System.currentTimeMillis();
                 if(System.currentTimeMillis() > (startMs + elapTrigger)){
                     currentState = FiringEnum.REST;
                 }
                 break;
             default:
+                stateTime = System.currentTimeMillis();
                 break;
         }
+    }
+
+    public void resetCounters() {
+        fireAttempt = 0;
+        fireCounter = 0;
+    }
+
+    public double getStateDurationSec() {
+        return (System.currentTimeMillis() - stateTime) / 1000;
     }
 }
