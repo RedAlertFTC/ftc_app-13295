@@ -25,7 +25,7 @@ public class Turntable
     private int MAX_SLOT = 3;
     private int MIN_SLOT = 1;
 
-    private double MIN_POSITION = 0.06;
+    public double MIN_POSITION = 0.06;
     private double MIDDLE_POSITION = 0.52;
     private double MAX_POSITION = 0.96;
 
@@ -61,7 +61,7 @@ public class Turntable
         }
         if (_currentSlot < MAX_SLOT) {
             _currentSlot++;
-            //updateCurrentSlot();
+            updateCurrentSlot();
         }
 
     }
@@ -82,7 +82,7 @@ public class Turntable
             if(index != _currentSlot && _currentState == TurntableState.RESTING) {
                 _currentSlot = index;
                 _currentState = TurntableState.MOVING;
-                //updateCurrentSlot();
+                updateCurrentSlot();
             }
         }
     }

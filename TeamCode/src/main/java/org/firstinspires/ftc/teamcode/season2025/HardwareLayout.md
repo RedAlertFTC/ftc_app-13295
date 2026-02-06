@@ -3,29 +3,33 @@
 
 ## Motors
 
-Front Left = fl (Control Hub Port X)
-Front Right = fr (Control Hub Port X)
-Back Left = bl (Control Hub Port X)
-Back Right = br (Control Hub Port X)
+Front Left = fl (Control Hub : Port 2)
+Front Right = fr (Control Hub Port 1)
+Back Left = bl (Control Hub Port 3)
+Back Right = br (Control Hub Port 0)
 
 # Otos
-otos
+otos = I2C 0
 
 # Limelight
-limelight
+limelight - Control Hub USB 3
 
-## Laucner
-launchLeft
-launchRight
-
+## Launchers
+launchLeft - Extension Hub : Port 0
+launchRight - Extension Hub : Port 1
 
 ## Intake
-intakeMotor
+intakeMotor - Extension Hub : Port 2
 
 ## Servos
-Spindexer = turntable
+Spindexer = Control Hub : Port 1
 
-Spooner = spooningServo
+Spooner = spooningServo : Port 2
 
-Aim Servo = linearServo
+Aim Servo = linearServo : Port 3
 
+## Lights
+
+Top Light - Extension Hub : Port 0
+
+Front Light - Control Hub : Port 5
