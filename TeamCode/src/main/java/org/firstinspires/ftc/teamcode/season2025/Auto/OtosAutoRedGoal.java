@@ -26,12 +26,17 @@ public class OtosAutoRedGoal extends LinearOpMode {
     private boolean launchReady = false;
     private boolean strafeReady = false;
 
-    private BallLauncher _ballLauncher;
-    private Turntable _turntable;
-    private BallSpooner _ballSpooner;
+    private BallLauncher ballLauncher;
+    private Turntable turntable;
+    private BallSpooner ballSpooner;
 
-    private ElapsedTime runtime = new ElapsedTime();
-    private static final double RUN_TIME = 3;
+    private int currentStage = 0;
+    private final double stageTime = 2.0;
+    private final ElapsedTime runtime = new ElapsedTime();
+    private int lastStage = -1;
+    private boolean shootingDone = false;
+    private boolean spoonerTriggered = false;
+
 
     @Override
     public void runOpMode() {
@@ -51,15 +56,15 @@ public class OtosAutoRedGoal extends LinearOpMode {
 
 
         if (FeatureFlags.launchEnabled()){
-            _ballLauncher = new BallLauncher(hardwareMap, telemetry);
+            ballLauncher = new BallLauncher(hardwareMap, telemetry);
         }
 
         if (FeatureFlags.turnTableEnabled()){
-            _turntable = new Turntable(hardwareMap, telemetry);
+            turntable = new Turntable(hardwareMap, telemetry);
         }
 
         if (FeatureFlags.ballSpoonerEnabled()){
-            _ballSpooner = new BallSpooner(hardwareMap, telemetry);
+            ballSpooner = new BallSpooner(hardwareMap, telemetry);
         }
 
 
@@ -85,8 +90,11 @@ public class OtosAutoRedGoal extends LinearOpMode {
             }
 
             if (pos.x >= 19.5 && launchReady){
-                //ShootAllBalls();
-                strafeReady = true;
+                ShootAllBalls();
+                if (shootingDone){
+                    strafeReady = true;
+                }
+
             }
 
             if (pos.x >= 19.5 && strafeReady){
@@ -100,6 +108,9 @@ public class OtosAutoRedGoal extends LinearOpMode {
             }
             telemetry.addData("X", pos.x);
             telemetry.addData("Y", pos.y);
+            telemetry.addData("Turntable Slot", turntable.currentSlot());
+            telemetry.addData("TurnTable Pos", turntable._currentPosition);
+            telemetry.addData("Spooner State", ballSpooner.SpoonerState());
 
             telemetry.update();
         }
@@ -135,23 +146,76 @@ public class OtosAutoRedGoal extends LinearOpMode {
         backRightDrive.setPower(0.5);
     }
 
-    private void ShootAllBalls(){
+    private void ShootAllBalls() {
 
-        _ballLauncher.setLaunchPresetOne();
-        sleep(2000);
-        _turntable.moveToIndex(1);
-        sleep(1000);
-        _ballSpooner.fire();
-        sleep(1000);
-        _turntable.moveToIndex(2);
-        sleep(1000);
-        _ballSpooner.fire();
-        sleep(1000);
-        _turntable.moveToIndex(3);
-        sleep(1000);
-        _ballSpooner.fire();
+        // Start the stage once
+        if (currentStage != lastStage) {
 
+            spoonerTriggered = false; // reset for new stage
+
+            switch (currentStage) {
+
+                case 0: // set launcher
+                    ballLauncher.setLaunchPresetTwo();
+                    break;
+
+                case 1: // turntable to slot 1
+                    turntable.moveToIndex(1);
+                    break;
+
+                case 2: // fire spooner
+                    if (!spoonerTriggered) {
+                        ballSpooner.fire();
+                        spoonerTriggered = true;
+                    }
+                    break;
+
+                case 3: // turntable to slot 2
+                    turntable.moveToIndex(2);
+                    break;
+
+                case 4: // fire spooner
+                    if (!spoonerTriggered) {
+                        ballSpooner.fire();
+                        spoonerTriggered = true;
+                    }
+                    break;
+
+                case 5: // turntable to slot 3
+                    turntable.moveToIndex(3);
+                    break;
+
+                case 6: // fire spooner
+                    if (!spoonerTriggered) {
+                        ballSpooner.fire();
+                        spoonerTriggered = true;
+                    }
+                    break;
+
+                default:
+                    ballLauncher.turnOffLauncher();
+                    shootingDone = true;
+                    break;
+            }
+
+            lastStage = currentStage;
+            runtime.reset();
+        }
+
+        // Update moving components continuously
+        if (turntable != null) turntable.updateCurrentSlot();
+        if (ballSpooner != null) ballSpooner.updateSpoonerState();
+
+        // Advance stage only if everything is idle and enough time has passed
+        boolean turntableReady = turntable == null || !turntable.isBusy();
+        boolean spoonerReady = ballSpooner == null || !ballSpooner.isBusy();
+
+        if (turntableReady && spoonerReady && runtime.seconds() >= stageTime) {
+            currentStage++;
+            runtime.reset();
+        }
     }
+
 
 
     private void configureOtos() {

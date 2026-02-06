@@ -138,8 +138,6 @@ public class BallLauncher {
         leftLaunchMotor.setPower(_currentPower);
     }
 
-
-    //
     public void decreaseLauncherSpeedByRPM()
     {
         currentRPM -= RPM_INCREMENT;
@@ -222,4 +220,9 @@ public class BallLauncher {
         rightLaunchMotor.setVelocity(currentTPS);
     }
 
+    public boolean isReadyToFire(double distance) {
+        //TODO: determine when it is ready
+
+        return true;
+    }
 }

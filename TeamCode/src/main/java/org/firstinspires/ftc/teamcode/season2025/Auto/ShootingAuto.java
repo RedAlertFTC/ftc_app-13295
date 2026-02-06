@@ -36,20 +36,19 @@ public class ShootingAuto extends LinearOpMode {
     private enum FireState {
         IDLE,
         START_LAUNCHER,
-        LOAD_1,
-        FIRE_1,
-        LOAD_2,
-        FIRE_2,
-        LOAD_3,
-        FIRE_3,
-        STARTING,
-        FIRING,
-        LOADING,
-        COMPLETE
+        WAIT_FOR_LAUNCHER,
+        FIRE,
+        WAIT_FOR_FIRE,
+        ADVANCE_TURNTABLE,
+        WAIT_FOR_TURNTABLE,
+        DONE
     }
 
 
+
     private FireState firingState = FireState.IDLE;
+
+    private final ElapsedTime stateTimer = new ElapsedTime();
 
     private DcMotor frontLeftDrive = null;
     private DcMotor frontRightDrive = null;
@@ -61,6 +60,9 @@ public class ShootingAuto extends LinearOpMode {
     private BallLauncher _ballLauncher;
     private Turntable _turntable;
     private BallSpooner _ballSpooner;
+
+    long elapTrigger = 5000;
+    long startMs = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
     private static final double RUN_TIME = 3;
@@ -99,10 +101,15 @@ public class ShootingAuto extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        startMs = System.currentTimeMillis();
+
+        setExpiration(FireState.IDLE, 2000);
+
         while (opModeIsActive()){
 
-            _ballSpooner.updateSpoonerState();
-            ShootAllBalls();
+            //_ballSpooner.updateSpoonerState();
+            //ShootAllBalls();
+
 
             update();
 
@@ -115,17 +122,99 @@ public class ShootingAuto extends LinearOpMode {
         return isBusy;
     }
 
+
+
     public void update() {
 
         switch (firingState) {
-            case IDLE:
-                firingState = FireState.START_LAUNCHER;
-                _turntable.moveToIndex(1);
-                _ballLauncher.setLaunchPresetTwo();
+
+            case START_LAUNCHER:
+                //_ballLauncher.setLaunchPresetThree();
+                stateTimer.reset();
+                firingState = FireState.WAIT_FOR_LAUNCHER;
                 break;
-            case FIRE_1:
+
+            case WAIT_FOR_LAUNCHER:
+                //if (_ballLauncher.isReadyToFire(36.0)) {
+                //    firingState = FireState.FIRE;
+                //}
+                firingState = FireState.FIRE;
+                break;
+
+            case IDLE:
+                if(isExpired(FireState.IDLE)) {
+                    firingState = FireState.FIRE;
+                    setExpiration(FireState.FIRE, 2000);
+                }
+                break;
+            case FIRE:
+
+                _ballSpooner.fire();
+                if(isExpired(FireState.FIRE)) {
+                    firingState = FireState.IDLE;
+                    setExpiration(FireState.IDLE, 500);
+                }
+
+
+                //stateTimer.reset();
+
+
+//                if (!_ballSpooner.isBusy()) {
+//                    _ballSpooner.fire();
+//                    firingState = FireState.IDLE;
+//                    //firingState = FireState.WAIT_FOR_FIRE;
+//                }
+
+                break;
+
+            case WAIT_FOR_FIRE:
+                if (!_ballSpooner.isBusy() && stateTimer.seconds() > 0.3) {
+                    firingState = FireState.ADVANCE_TURNTABLE;
+                }
+                break;
+
+            case ADVANCE_TURNTABLE:
+                if (_turntable.currentSlot() < 3) {
+                    _turntable.increaseIndex();
+                    stateTimer.reset();
+                    firingState = FireState.WAIT_FOR_TURNTABLE;
+                } else {
+                    firingState = FireState.DONE;
+                }
+                break;
+
+            case WAIT_FOR_TURNTABLE:
+                if (!_turntable.isBusy() && stateTimer.seconds() > 0.2) {
+                    firingState = FireState.FIRE;
+                }
+                break;
+
+            case DONE:
+                // All balls fired — do nothing
                 break;
         }
+
+        // Always update mechanisms
+        _ballSpooner.updateSpoonerState();
+        _turntable.updateCurrentSlot();
+
+        telemetry.addData("Fire State", firingState);
+        telemetry.addData("Turntable Slot", _turntable.currentSlot());
+        telemetry.addData("Spooner State", _ballSpooner.SpoonerState());
+        telemetry.update();
+    }
+
+
+    private FireState _checkState = null;
+    private long _expiration = 0;
+    private void setExpiration(FireState state, long durationMs) {
+
+        _checkState = state;
+        _expiration = durationMs + System.currentTimeMillis();
+    }
+
+    private boolean isExpired(FireState checkState) {
+         return (checkState == _checkState && System.currentTimeMillis() > _expiration);
     }
 
     public void stopMoving(){
