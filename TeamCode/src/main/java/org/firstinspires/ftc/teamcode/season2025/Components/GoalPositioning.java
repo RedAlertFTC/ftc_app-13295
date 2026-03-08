@@ -237,12 +237,12 @@ public class GoalPositioning
         // Make sure camera is streaming before we try to set the exposure controls
         if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             telemetry.addData("Camera", "Waiting");
-            telemetry.update();
+
             while (!stopRequested && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
                 //sleep(20);
             }
             telemetry.addData("Camera", "Ready");
-            telemetry.update();
+
         }
 
         // Set camera controls unless we are stopping.

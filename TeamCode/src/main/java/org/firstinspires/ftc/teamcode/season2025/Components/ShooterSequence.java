@@ -92,7 +92,7 @@ public class ShooterSequence {
 
         // Ensure turntable returns to slot 1 before starting the shooting sequence.
         try {
-            if (telemetry != null) { telemetry.addData("ShooterSequence", "Homing turntable to slot 1"); telemetry.update(); }
+            if (telemetry != null) { telemetry.addData("ShooterSequence", "Homing turntable to slot 1"); }
 
             // Force move to slot 1 and update servo command
             turntable.moveToIndex(1);
@@ -107,7 +107,7 @@ public class ShooterSequence {
 
             if (telemetry != null) {
                 try { telemetry.addData("ShooterSequence", "Turntable homing done; slot=%d busy=%b", turntable.currentSlot(), turntable.isBusy()); } catch (Exception ignored) {}
-                telemetry.update();
+
             }
         } catch (Exception e) {
             if (telemetry != null) telemetry.addData("ShooterSequence", "turntable home failed: %s", e.getMessage());
@@ -116,7 +116,7 @@ public class ShooterSequence {
         try {
             // Spin up the launcher to a preset velocity if available (use preset two as a reasonable default).
             // Caller may prefer to set specific velocity before calling.
-            launcher.setLaunchPresetTwo();
+            //launcher.setLaunchPresetTwo();
         } catch (Exception e) {
             // ignore
         }
@@ -125,12 +125,12 @@ public class ShooterSequence {
         long t0 = System.currentTimeMillis();
         while (!stopRequested && System.currentTimeMillis() - t0 < spinUpMs) {
             if (telemetry != null) telemetry.addData("ShooterSequence", "spinning up... %dms", System.currentTimeMillis() - t0);
-            if (telemetry != null) telemetry.update();
+
             try { Thread.sleep(20); } catch (InterruptedException ignored) { }
         }
 
         if (stopRequested) {
-            if (telemetry != null) { telemetry.addData("ShooterSequence","aborted before firing"); telemetry.update(); }
+            if (telemetry != null) { telemetry.addData("ShooterSequence","aborted before firing"); }
             return;
         }
 
@@ -139,7 +139,6 @@ public class ShooterSequence {
         for (int i = 0; i < count && !stopRequested; i++) {
             // Fire the spooner once
             if (telemetry != null) telemetry.addData("ShooterSequence", "Firing ball %d/%d", i+1, count);
-            if (telemetry != null) telemetry.update();
 
             spooner.fire();
             long start = System.currentTimeMillis();
@@ -159,7 +158,7 @@ public class ShooterSequence {
 
             if (!spoonerDone) {
                 if (telemetry != null) telemetry.addData("ShooterSequence", "Spooner timeout on shot %d", i+1);
-                if (telemetry != null) telemetry.update();
+
             } else {
                 shotsFired++;
             }
@@ -192,7 +191,7 @@ public class ShooterSequence {
 
         if (telemetry != null) {
             telemetry.addData("ShooterSequence", "finished: shotsFired=%d", shotsFired);
-            telemetry.update();
+
         }
     }
 }

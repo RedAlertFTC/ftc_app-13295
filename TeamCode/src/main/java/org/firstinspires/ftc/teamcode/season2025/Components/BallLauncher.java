@@ -91,7 +91,7 @@ public class BallLauncher {
         leftLaunchMotor.setPower(_currentPower);
 
        // _telemetry.addData("increased launch speed", "");
-        _telemetry.update();
+
     }
 
 
@@ -211,7 +211,7 @@ public class BallLauncher {
         rightLaunchMotor.setVelocity(currentTPS);
     }
     public void setLaunchPresetThree(){
-        currentTPS = 1730;
+        currentTPS = 1480;
         currentPos = 0.55;
         linearServo.setPosition(currentPos);
         leftLaunchMotor.setVelocity(currentTPS);

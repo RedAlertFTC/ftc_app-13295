@@ -38,7 +38,8 @@ public class AprilTagHone {
     private double kP_turn = 0.01;
     private double kI_turn = 0.0002;
     private double kD_turn = 0.0005;
-    private double turnDeadband = 1.0; // degrees
+    // tighten deadband so we aim within ±0.5 degrees of tx by default
+    private double turnDeadband = 0.5; // degrees
 
     // Forward (range) P controller
     private double kP_forward = 0.02;
@@ -51,6 +52,7 @@ public class AprilTagHone {
     // Desired stopping distance from tag (inches)
     private double targetDistanceIn = 36.0;
 
+    // PID state
     // PID state
     private double integralTurn = 0.0;
     private double lastErrorTurn = 0.0;

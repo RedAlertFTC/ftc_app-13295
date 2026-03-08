@@ -77,7 +77,7 @@ public class V4AutoRedWall extends LinearOpMode {
 
             SparkFunOTOS.Pose2D pos = myOtos.getPosition();
 
-            if (pos.x <= 10){
+            if (pos.x <= 2){
                 Forward();
             }
             else {
@@ -137,29 +137,13 @@ public class V4AutoRedWall extends LinearOpMode {
     }
 
     public void Forward(){
-        frontLeftDrive.setPower(0.5);
-        backLeftDrive.setPower(0.5);
-        frontRightDrive.setPower(0.5);
-        backRightDrive.setPower(0.5);
+        frontLeftDrive.setPower(0.2);
+        backLeftDrive.setPower(0.2);
+        frontRightDrive.setPower(0.2);
+        backRightDrive.setPower(0.2);
     }
 
-    private void ShootAllBalls(){
 
-        _ballLauncher.setLaunchPresetOne();
-        sleep(2000);
-        _turntable.moveToIndex(1);
-        sleep(1000);
-        _ballSpooner.fire();
-        sleep(1000);
-        _turntable.moveToIndex(2);
-        sleep(1000);
-        _ballSpooner.fire();
-        sleep(1000);
-        _turntable.moveToIndex(3);
-        sleep(1000);
-        _ballSpooner.fire();
-
-    }
 
 
     private void configureOtos() {

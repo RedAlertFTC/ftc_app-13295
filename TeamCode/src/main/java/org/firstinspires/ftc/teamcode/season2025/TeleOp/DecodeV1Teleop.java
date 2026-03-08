@@ -218,7 +218,7 @@ public class DecodeV1Teleop extends LinearOpMode
         // Use initLimelight so hone can read the limelight; motors are passed directly below when homing
         hone.initLimelight(hardwareMap, "limelight");
         // Default aim offset: aim to the left of the AprilTag by 5 degrees
-        hone.setAimOffsetDegrees(5.0);
+        hone.setAimOffsetDegrees(0.0);
         // We won't call initMotors because this test already initializes motors and sets directions.
         hone.start();
         hone.reset();
@@ -235,7 +235,7 @@ public class DecodeV1Teleop extends LinearOpMode
         runtime.reset();
 
         // Wait for the game to start (driver presses START)
-       // telemetry.addData("Status", "Initialized");
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -256,7 +256,7 @@ public class DecodeV1Teleop extends LinearOpMode
                 } catch (Exception e) {
                     // If reading fails, null out colors so we don't dereference
                     colors = null;
-                    telemetry.addData("ColorSensorError", e.getMessage());
+
                 }
             }
 
@@ -355,12 +355,10 @@ public class DecodeV1Teleop extends LinearOpMode
                     telemetry.addData("ty", result.getTy());
                     telemetry.addData("Distance cm", getDistanceIn(result.getTy()));
 
-                  //  telemetry.addData("DesiredPower", calculateCurrentPower(result.getTy()));
 
-                    telemetry.addData("Botpose", botpose.toString());
-                    telemetry.addData("Distance", distance);
-                    telemetry.addData("Forward Distance (in)", "%.1f", forwardDistanceInches);
-                    telemetry.addData("Total Distance (in)", "%.1f", totalDistanceInches);
+
+
+
 
 
 
@@ -429,10 +427,10 @@ public class DecodeV1Teleop extends LinearOpMode
                 prevHoneLeft = leftOut;
                 prevHoneRight = rightOut;
 
-                telemetry.addData("Hone", "ENGAGED");
-                telemetry.addData("Hone valid", r.valid);
-                telemetry.addData("Hone dist (in)", r.distanceIn);
-                telemetry.addData("Hone left/right", "%.2f / %.2f", leftOut, rightOut);
+               // telemetry.addData("Hone", "ENGAGED");
+                //telemetry.addData("Hone valid", r.valid);
+               // telemetry.addData("Hone dist (in)", r.distanceIn);
+               // telemetry.addData("Hone left/right", "%.2f / %.2f", leftOut, rightOut);
 
             } else {
                 // If we were honing and now stopped, restore motor modes for normal driving
@@ -477,15 +475,9 @@ public class DecodeV1Teleop extends LinearOpMode
                 backRightDrive.setPower(backRightPower);
 
                 // Show the elapsed game time and wheel power.
-                telemetry.addData("Status", "Run Time: " + runtime.toString());
-                telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-                telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
-            }
-
-            if(_popBall.getRise()) {
-                //telemetry.addData("Gamepad2:A", "pressed");
-            } else {
-                //telemetry.addData("Gamepad2:A", "not pressed");
+                //telemetry.addData("Status", "Run Time: " + runtime.toString());
+                //telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
+               // telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
             }
 
             if (_toggleRobotDirection.getRise()){
@@ -549,10 +541,23 @@ public class DecodeV1Teleop extends LinearOpMode
 
             if (FeatureFlags.ballSpoonerEnabled())
             {
-                if(gamepad2.a){
+                // Use debounced rising-edge so a single press fires once
+                boolean rawA = gamepad2.a;
+                boolean rise = (_popBall != null && _popBall.getRise());
+                if (rise) {
                     _ballSpooner.fire();
                 }
+                // Keep calling update() each loop to advance the spooner state machine
                 _ballSpooner.updateSpoonerState();
+
+                // Telemetry to help debug the spooner input/state
+                try {
+                    //telemetry.addData("Spooner:rawA", rawA);
+                    //telemetry.addData("Spooner:debouncedRise", rise);
+                   // telemetry.addData("Spooner:state", _ballSpooner.SpoonerState());
+                    //telemetry.addData("Spooner:attempts", _ballSpooner.getFireAttempt());
+                    //telemetry.addData("Spooner:fired", _ballSpooner.getFireCounter());
+                } catch (Exception ignored) {}
 
             }
 
@@ -615,25 +620,24 @@ public class DecodeV1Teleop extends LinearOpMode
 
             // Determining the amount of red, green, and blue (fresh read each loop)
             if (colors != null) {
-                telemetry.addData("Red", "%.3f", colors.red);
-                telemetry.addData("Green", "%.3f", colors.green);
-                telemetry.addData("Blue", "%.3f", colors.blue);
-                telemetry.addData("Alpha", "%.3f", colors.alpha);
+               // telemetry.addData("Red", "%.3f", colors.red);
+               // telemetry.addData("Green", "%.3f", colors.green);
+               // telemetry.addData("Blue", "%.3f", colors.blue);
+               // telemetry.addData("Alpha", "%.3f", colors.alpha);
                 // also show the raw light value if the sensor supports OpticalDistanceSensor
                 try {
                     double light = ((OpticalDistanceSensor) colorSensor).getLightDetected();
-                    telemetry.addData("LightDetected", "%.3f", light);
+                   // telemetry.addData("LightDetected", "%.3f", light);
                 } catch (Exception e) {
                     // not all NormalizedColorSensor implementations are OpticalDistanceSensor
                 }
-                if (colorSensorName != null) telemetry.addData("SensorName", colorSensorName);
-                telemetry.addData("Gain", gain);
+
 
 
             } else if (colorSensor == null) {
-                telemetry.addData("ColorSensor", "not found");
+               // telemetry.addData("ColorSensor", "not found");
             } else {
-                telemetry.addData("ColorSensor", "read error");
+                //telemetry.addData("ColorSensor", "read error");
             }
 
             // Color-based ball detection (guarded by colors != null)
@@ -685,18 +689,18 @@ public class DecodeV1Teleop extends LinearOpMode
 
 
 
-                telemetry.addData("Launch Power", _ballLauncher.getCurrentPower());
+               // telemetry.addData("Launch Power", _ballLauncher.getCurrentPower());
                 //telemetry.addData("LauncherRPM", _ballLauncher.currentRPM());
                 //telemetry.addData("Current TPS", _ballLauncher.currentTPS());
 
-                telemetry.addData("Left Launch Power", _ballLauncher.getLeftLaunchPower());
-                telemetry.addData("Right Launch Power", _ballLauncher.getRightLaunchPower());
+                //telemetry.addData("Left Launch Power", _ballLauncher.getLeftLaunchPower());
+               // telemetry.addData("Right Launch Power", _ballLauncher.getRightLaunchPower());
             }
 
             if(FeatureFlags.turnTableEnabled())
             {
                 telemetry.addData("Turntable Slot", _turntable.currentSlot());
-                telemetry.addData("Turntable Pos", _turntable._currentPosition);
+               // telemetry.addData("Turntable Pos", _turntable._currentPosition);
             }
 
         }

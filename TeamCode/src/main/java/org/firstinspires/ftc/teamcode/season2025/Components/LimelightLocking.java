@@ -26,7 +26,6 @@ public class LimelightLocking
                 _telemetry.addData("tx", result.getTx());
                 _telemetry.addData("ty", result.getTy());
                 _telemetry.addData("Botpose", botpose.toString());
-                _telemetry.update();
             }
         }
     }

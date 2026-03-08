@@ -123,7 +123,7 @@ public class Turntable
         try {
             if (_telemetry != null) {
                 _telemetry.addData("Turntable", "moved to slot=%d pos=%.3f busy=%b", _currentSlot, _currentPosition, isBusy());
-                _telemetry.update();
+
             }
         } catch (Exception ignored) {}
     }
