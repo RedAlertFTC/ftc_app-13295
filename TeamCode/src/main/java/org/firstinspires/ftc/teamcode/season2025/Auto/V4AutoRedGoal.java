@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testing;
+package org.firstinspires.ftc.teamcode.season2025.Auto;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 
-@Autonomous(name = "AutoShootingTest", group = "Robot")
-public class AutoShootingTest extends LinearOpMode {
+@Autonomous(name = "V4AutoRedGoal", group = "Robot")
+public class V4AutoRedGoal extends LinearOpMode {
 
     private SparkFunOTOS myOtos;
 
@@ -95,7 +95,7 @@ public class AutoShootingTest extends LinearOpMode {
                 switch (currentStage) {
 
                     case 0:
-                        ballLauncher.setLaunchPresetTwo();
+                        ballLauncher.setLaunchPresetAuto();
                         break;
 
                     case 1:

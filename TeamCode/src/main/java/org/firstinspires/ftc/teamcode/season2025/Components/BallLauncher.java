@@ -197,13 +197,19 @@ public class BallLauncher {
     }
 
     public void setLaunchPresetTwo(){
-        currentTPS = 1300;
+        currentTPS = 1250;
         currentPos = 0.45;
         linearServo.setPosition(currentPos);
         leftLaunchMotor.setVelocity(currentTPS);
         rightLaunchMotor.setVelocity(currentTPS);
     }
-
+    public void setLaunchPresetAuto(){
+        currentTPS = 1150;
+        currentPos = 0.45;
+        linearServo.setPosition(currentPos);
+        leftLaunchMotor.setVelocity(currentTPS);
+        rightLaunchMotor.setVelocity(currentTPS);
+    }
     public void setLaunchPresetThree(){
         currentTPS = 1730;
         currentPos = 0.55;

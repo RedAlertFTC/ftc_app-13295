@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testing;
+package org.firstinspires.ftc.teamcode.season2025.Auto;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 
-@Autonomous(name = "AutoShootingTest", group = "Robot")
-public class AutoShootingTest extends LinearOpMode {
+@Autonomous(name = "V4AutoBlueGoal", group = "Robot")
+public class V4AutoBlueGoal extends LinearOpMode {
 
     private SparkFunOTOS myOtos;
 
@@ -95,7 +95,7 @@ public class AutoShootingTest extends LinearOpMode {
                 switch (currentStage) {
 
                     case 0:
-                        ballLauncher.setLaunchPresetTwo();
+                        ballLauncher.setLaunchPresetAuto();
                         break;
 
                     case 1:
@@ -202,12 +202,11 @@ public class AutoShootingTest extends LinearOpMode {
     private void escapeZone(){
         SparkFunOTOS.Pose2D pos = myOtos.getPosition();
         if (pos.x >= 19.5 && strafeReady){
-            if (pos.y <= 15.5){
-                StrafeLeft();
+            if (pos.y >= -15.5){
+                StrafeRight();
             }
             else {
                 stopMoving();
-
             }
 
         }
@@ -254,6 +253,13 @@ public class AutoShootingTest extends LinearOpMode {
         backLeftDrive.setPower(0.5);
         frontRightDrive.setPower(0.5);
         backRightDrive.setPower(-0.5);
+    }
+
+    private void StrafeRight(){
+        frontLeftDrive.setPower(0.5);
+        backLeftDrive.setPower(-0.5);
+        frontRightDrive.setPower(-0.5);
+        backRightDrive.setPower(0.5);
     }
 
     private void tweakRight(){
