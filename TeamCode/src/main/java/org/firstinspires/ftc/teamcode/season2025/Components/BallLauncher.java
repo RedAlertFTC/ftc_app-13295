@@ -204,8 +204,8 @@ public class BallLauncher {
         rightLaunchMotor.setVelocity(currentTPS);
     }
     public void setLaunchPresetAuto(){
-        currentTPS = 1150;
-        currentPos = 0.45;
+        currentTPS = 1440;
+        currentPos = 0.55;
         linearServo.setPosition(currentPos);
         leftLaunchMotor.setVelocity(currentTPS);
         rightLaunchMotor.setVelocity(currentTPS);

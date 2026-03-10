@@ -66,6 +66,16 @@ public class AprilTagHone {
     // i.e., the robot points ~5 degrees to the left of the tag.
     private double aimOffsetDegrees = 0.0;
 
+    // Optional: require a specific fiducial ID to be present for the controller to consider the
+    // target "valid". When set to -1 (default) any fiducial will be accepted. If set to a
+    // positive fiducial id (e.g., 24), the update() method will treat results as "no target"
+    // unless that specific fiducial is visible. This allows callers to use the hone's built-in
+    // searching behavior while restricting positioning to one ID.
+    private int requiredFiducialId = -1;
+
+    public void setRequiredFiducialId(int id) { this.requiredFiducialId = id; }
+    public int getRequiredFiducialId() { return this.requiredFiducialId; }
+
     /**
      * Set desired aim offset in degrees. Positive -> aim to the left of the tag (tag appears to the right of center).
      */
@@ -172,55 +182,79 @@ public class AprilTagHone {
         }
 
         if (result != null && result.isValid()) {
-            r.valid = true;
-            r.distanceIn = Double.NaN;
-
-            Pose3D botpose = result.getBotpose();
-            if (botpose != null) {
-                double x = botpose.getPosition().x;
-                double y = botpose.getPosition().y;
-                double z = botpose.getPosition().z;
-                double distanceCm = Math.sqrt(x*x + y*y + z*z) * 100.0; // meters->cm
-                r.distanceIn = distanceCm * 0.393701;
+            // If caller requested a specific fiducial, ensure it's present. If it's not present
+            // treat the result as "no valid tag" so the hone will run its search rotation instead.
+            boolean requiredPresent = true;
+            if (requiredFiducialId != -1) {
+                requiredPresent = false;
+                try {
+                    java.util.List<com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult> frs = result.getFiducialResults();
+                    if (frs != null) {
+                        for (com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult fr : frs) {
+                            if (fr.getFiducialId() == requiredFiducialId) { requiredPresent = true; break; }
+                        }
+                    }
+                } catch (Exception ignored) { requiredPresent = false; }
             }
 
-            // Turn PID - use aimOffsetDegrees as the setpoint so we don't point exactly at the tag
-            // but instead offset the crosshair by aimOffsetDegrees (see setter docs above).
-            double error = result.getTx() - aimOffsetDegrees;
-            integralTurn += error;
-            double derivative = error - lastErrorTurn;
-            r.turnPower = (kP_turn * error) + (kI_turn * integralTurn) + (kD_turn * derivative);
-            lastErrorTurn = error;
-
-            // Deadband and clamp
-            if (Math.abs(error) < turnDeadband) {
-                r.turnPower = 0.0;
+            if (!requiredPresent) {
+                // pretend there is no valid tag so we fall back to search behavior below
+                r.valid = false;
+                r.forwardPower = 0.0;
+                r.turnPower = searchTurnPower;
                 integralTurn = 0.0;
-            }
-            if (r.turnPower > maxTurnPower) r.turnPower = maxTurnPower;
-            if (r.turnPower < -maxTurnPower) r.turnPower = -maxTurnPower;
-
-            // Forward P control based on distance (if available)
-            if (!Double.isNaN(r.distanceIn)) {
-                double forwardError = r.distanceIn - targetDistanceIn;
-                if (forwardError > distanceDeadbandIn) {
-                    r.forwardPower = kP_forward * forwardError;
-                    if (r.forwardPower > maxDrivePower) r.forwardPower = maxDrivePower;
-                } else {
-                    r.forwardPower = 0.0;
-                }
+                lastErrorTurn = 0.0;
             } else {
-                r.forwardPower = 0.0; // cannot compute range -> don't drive forward
+                r.valid = true;
+                r.distanceIn = Double.NaN;
+
+                Pose3D botpose = result.getBotpose();
+                if (botpose != null) {
+                    double x = botpose.getPosition().x;
+                    double y = botpose.getPosition().y;
+                    double z = botpose.getPosition().z;
+                    double distanceCm = Math.sqrt(x*x + y*y + z*z) * 100.0; // meters->cm
+                    r.distanceIn = distanceCm * 0.393701;
+                }
+
+                // Turn PID - use aimOffsetDegrees as the setpoint so we don't point exactly at the tag
+                // but instead offset the crosshair by aimOffsetDegrees (see setter docs above).
+                double error = result.getTx() - aimOffsetDegrees;
+                integralTurn += error;
+                double derivative = error - lastErrorTurn;
+                r.turnPower = (kP_turn * error) + (kI_turn * integralTurn) + (kD_turn * derivative);
+                lastErrorTurn = error;
+
+                // Deadband and clamp
+                if (Math.abs(error) < turnDeadband) {
+                    r.turnPower = 0.0;
+                    integralTurn = 0.0;
+                }
+                if (r.turnPower > maxTurnPower) r.turnPower = maxTurnPower;
+                if (r.turnPower < -maxTurnPower) r.turnPower = -maxTurnPower;
+
+                // Forward P control based on distance (if available)
+                if (!Double.isNaN(r.distanceIn)) {
+                    double forwardError = r.distanceIn - targetDistanceIn;
+                    if (forwardError > distanceDeadbandIn) {
+                        r.forwardPower = kP_forward * forwardError;
+                        if (r.forwardPower > maxDrivePower) r.forwardPower = maxDrivePower;
+                    } else {
+                        r.forwardPower = 0.0;
+                    }
+                } else {
+                    r.forwardPower = 0.0; // cannot compute range -> don't drive forward
+                }
             }
 
-        } else {
-            // No valid tag: rotate slowly to search
-            r.valid = false;
-            r.forwardPower = 0.0;
-            r.turnPower = searchTurnPower;
-            integralTurn = 0.0;
-            lastErrorTurn = 0.0;
-        }
+         } else {
+             // No valid tag: rotate slowly to search
+             r.valid = false;
+             r.forwardPower = 0.0;
+             r.turnPower = searchTurnPower;
+             integralTurn = 0.0;
+             lastErrorTurn = 0.0;
+         }
 
         // Combine forward and turn into left/right powers
         r.leftPower = r.forwardPower + r.turnPower;
@@ -308,5 +342,23 @@ public class AprilTagHone {
 
 
         return r;
+    }
+
+    /**
+     * Returns true if the limelight currently has a valid target and the horizontal
+     * angle (tx) is within the configured turn deadband of the aim offset.
+     * This is a convenience helper callers can use to know when the robot is "aimed".
+     */
+    public boolean isAimed() {
+        if (limelight == null) return false;
+        LLResult result = null;
+        try {
+            result = limelight.getLatestResult();
+        } catch (Exception e) {
+            return false;
+        }
+        if (result == null || !result.isValid()) return false;
+        double error = result.getTx() - aimOffsetDegrees;
+        return Math.abs(error) <= turnDeadband;
     }
 }

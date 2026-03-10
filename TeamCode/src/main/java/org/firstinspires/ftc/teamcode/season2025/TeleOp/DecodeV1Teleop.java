@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode.season2025.TeleOp;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -130,7 +131,17 @@ public class DecodeV1Teleop extends LinearOpMode
     private DebouncedButton _launcherPresetThree;
     private DebouncedButton _turnOffLauncher;
     private DebouncedButton _shootAllBalls;
+    // Target selection for AprilTag motifs
+    private int[] targetOptions = new int[] { -1, 20, 24, 21, 22, 23 }; // -1 = any
+    private String[] targetLabels = new String[] { "ANY", "BlueGoal", "RedGoal", "GPP", "PGP", "PPG" };
+    private int targetIndex = 0;
+    private DebouncedButton _cycleTargetLeft;
+    private DebouncedButton _cycleTargetRight;
+    private double searchTurnPower = 0.22; // turn power used while searching for the selected tag
+    private boolean fixedTarget = false; // true when a subclass/op has forced a specific target
     private double launcherIncrement = 0.05F;
+    // Helper: return true for motif fiducials (we will ignore these for honing)
+    private boolean isMotifId(int id) { return id == 21 || id == 22 || id == 23; }
     private int goalAprilTag;
     private boolean forwardDriving = true;
     private boolean greenBallDetected = false;
@@ -355,11 +366,14 @@ public class DecodeV1Teleop extends LinearOpMode
                     telemetry.addData("ty", result.getTy());
                     telemetry.addData("Distance cm", getDistanceIn(result.getTy()));
 
-
-
-
-
-
+                    // If the limelight returned fiducial results, show the first fiducial id
+                    try {
+                        java.util.List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                        if (fiducials != null && !fiducials.isEmpty()) {
+                            int fid = fiducials.get(0).getFiducialId();
+                            telemetry.addData("TargetID", fid);
+                        }
+                    } catch (Exception ignored) {}
 
 
                 }
@@ -393,11 +407,53 @@ public class DecodeV1Teleop extends LinearOpMode
                     }
                 }
 
-                AprilTagHone.HoneResult r = hone.update();
+                // Check limelight fiducials and only apply hone outputs when the selected target is present
+                LLResult llres = limelight.getLatestResult();
+                boolean matched = false;
+                int matchedId = -1;
+                if (llres != null && llres.isValid()) {
+                    try {
+                        java.util.List<LLResultTypes.FiducialResult> frs = llres.getFiducialResults();
+                        if (frs != null) {
+                            for (LLResultTypes.FiducialResult fr : frs) {
+                                int id = fr.getFiducialId();
+                                // Never match motif fiducials for honing (21/22/23)
+                                if (isMotifId(id)) continue;
+                                if (targetOptions[targetIndex] == -1) {
+                                    // ANY selection: accept any non-motif fiducial
+                                    matched = true;
+                                    matchedId = id;
+                                    break;
+                                } else {
+                                    // Specific selection: accept only if it equals the chosen id (and not a motif)
+                                    if (id == targetOptions[targetIndex]) {
+                                        matched = true;
+                                        matchedId = id;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception ignored) { matched = false; }
+                }
 
-                // Target outputs from hone
-                double targetLeft = r.leftPower;
-                double targetRight = r.rightPower;
+                double targetLeft;
+                double targetRight;
+                if (matched) {
+                    // preferred tag found: use AprilTagHone output
+                    AprilTagHone.HoneResult r = hone.update();
+                    targetLeft = r.leftPower;
+                    targetRight = r.rightPower;
+                    // Only show the matched fiducial ID (do not display motif pattern)
+                    telemetry.addData("TargetID", matchedId);
+
+                } else {
+                    // selected tag not present: do a slow search rotation
+                    targetLeft = searchTurnPower;
+                    targetRight = -searchTurnPower;
+                    telemetry.addData("Target", "Searching for: " + targetLabels[targetIndex]);
+
+                }
 
                 // Exponential smoothing
                 double smoothedLeft = (HONE_SMOOTH_ALPHA * prevHoneLeft) + ((1.0 - HONE_SMOOTH_ALPHA) * targetLeft);
@@ -489,6 +545,19 @@ public class DecodeV1Teleop extends LinearOpMode
                 }
             }
 
+            // Cycle target selection with dpad left/right
+            if (!fixedTarget) {
+                if (_cycleTargetLeft.getRise()){
+                    targetIndex = (targetIndex - 1 + targetOptions.length) % targetOptions.length;
+                    telemetry.addData("SelectedTarget", targetLabels[targetIndex]);
+                }
+                if (_cycleTargetRight.getRise()){
+                    targetIndex = (targetIndex + 1) % targetOptions.length;
+                    telemetry.addData("SelectedTarget", targetLabels[targetIndex]);
+                }
+            } else {
+                telemetry.addData("SelectedTarget", targetLabels[targetIndex] + " (LOCKED)");
+            }
 
 
             if(FeatureFlags.launchEnabled()) {
@@ -753,6 +822,10 @@ public class DecodeV1Teleop extends LinearOpMode
         _driverOneGamepad = new DisasterGamePad(gamepad1);
         _toggleRobotDirection = new DebouncedButton(_driverOneGamepad.getAButton());
 
+        // Target selection buttons (cycle left/right using dpad)
+        _cycleTargetLeft = new DebouncedButton(_driverOneGamepad.getDpadLeft());
+        _cycleTargetRight = new DebouncedButton(_driverOneGamepad.getDpadRight());
+
         //Gamepad 2 configuration
         _driverTwoGamepad = new DisasterGamePad(gamepad2);
         _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
@@ -767,12 +840,21 @@ public class DecodeV1Teleop extends LinearOpMode
         _launcherPresetThree = new DebouncedButton(_driverTwoGamepad.getBButton());
         _turnOffLauncher = new DebouncedButton(_driverTwoGamepad.getLeftStickButton());
         _shootAllBalls = new DebouncedButton(_driverTwoGamepad.getRightStickButton());
-
-        //_pedroStart = new DebouncedButton(_driverOneGamepad.getYButton());
     }
 
     public void setGoalAprilTag(int aprilTagID){
+        // Called by subclass ops (eg. DecodeV1TeleOpBlue/Red) to lock selection to a specific tag.
         goalAprilTag = aprilTagID;
+        fixedTarget = false;
+        if (aprilTagID != 0) {
+            for (int i = 0; i < targetOptions.length; i++) {
+                if (targetOptions[i] == aprilTagID) {
+                    targetIndex = i;
+                    fixedTarget = true;
+                    break;
+                }
+            }
+        }
     }
 
     double limelghtMountAngleDegrees = 0;

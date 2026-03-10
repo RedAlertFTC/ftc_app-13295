@@ -29,6 +29,11 @@ public class ShooterSequence {
     private volatile boolean running = false;
     private volatile boolean stopRequested = false;
 
+    // Launcher readiness tolerances
+    private final double LAUNCHER_TPS_TOLERANCE_FRAC = 0.02; // 5% tolerance for velocity mode
+    private final double LAUNCHER_POWER_TOLERANCE = 0.03; // absolute power tolerance for open-loop power mode
+    private final long LAUNCHER_READY_TIMEOUT_MS = 1500; // how long to wait for launcher to settle before giving up
+
     public ShooterSequence(BallLauncher launcher, Turntable turntable, BallSpooner spooner, Telemetry telemetry) {
         this.launcher = launcher;
         this.turntable = turntable;
@@ -39,6 +44,102 @@ public class ShooterSequence {
     /** Convenience: shoot 3 balls using defaults (blocking). */
     public void shootAllRapidly() {
         shootAllRapidly(3, DEFAULT_SPINUP_MS, DEFAULT_BETWEEN_SHOTS_MS, DEFAULT_SPOONER_TIMEOUT_MS);
+    }
+
+    /**
+     * Shoot balls in a specific turntable slot order. Each entry in `order` is a 1-based slot index.
+     * The method will home the turntable to slot 1 first (safety), spin up the launcher, then move to each
+     * requested slot and fire the spooner once.
+     */
+    public void shootInOrder(int[] order) {
+        shootInOrder(order, DEFAULT_SPINUP_MS, DEFAULT_BETWEEN_SHOTS_MS, DEFAULT_SPOONER_TIMEOUT_MS);
+    }
+
+    /** Async wrapper for shootInOrder. */
+    public void shootInOrderAsync(final int[] order) {
+        if (running) return;
+        stopRequested = false;
+        Thread t = new Thread(() -> {
+            running = true;
+            try { shootInOrder(order); } finally { running = false; }
+        }, "ShooterSequence-Order-Thread");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    public void shootInOrder(int[] order, long spinUpMs, long betweenShotsMs, long spoonerTimeoutMs) {
+        if (order == null || order.length == 0) return;
+        if (launcher == null || turntable == null || spooner == null) {
+            if (telemetry != null) telemetry.addData("ShooterSequence", "missing components");
+            return;
+        }
+
+        stopRequested = false;
+
+        // Home turntable to slot 1 first (same safety as other method)
+        try {
+            if (telemetry != null) telemetry.addData("ShooterSequence", "Homing turntable to slot 1 (pre-order)");
+            turntable.moveToIndex(1);
+            try { turntable.updateCurrentSlot(); } catch (Exception ignored) {}
+            long settleStart = System.currentTimeMillis();
+            final long FORCE_SETTLE_MS = Math.max(DEFAULT_TURNTABLE_SETTLE_MS, 500);
+            while (!stopRequested && (System.currentTimeMillis() - settleStart) < FORCE_SETTLE_MS) {
+                try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+            }
+        } catch (Exception e) {
+            if (telemetry != null) telemetry.addData("ShooterSequence", "turntable home failed: %s", e.getMessage());
+        }
+
+        // Spin up launcher
+        long t0 = System.currentTimeMillis();
+        while (!stopRequested && System.currentTimeMillis() - t0 < spinUpMs) {
+            if (telemetry != null) telemetry.addData("ShooterSequence", "spinning up... %dms", System.currentTimeMillis() - t0);
+            try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+        }
+
+        if (stopRequested) return;
+
+        int shotsFired = 0;
+        for (int idx = 0; idx < order.length && !stopRequested; idx++) {
+            int slot = order[idx];
+            if (telemetry != null) telemetry.addData("ShooterSequence", "Moving to slot %d for shot %d/%d", slot, idx+1, order.length);
+            try {
+                turntable.moveToIndex(slot);
+                try { turntable.updateCurrentSlot(); } catch (Exception ignored) {}
+            } catch (Exception ignored) {}
+
+            long settleStart = System.currentTimeMillis();
+            while (!stopRequested && System.currentTimeMillis() - settleStart < DEFAULT_TURNTABLE_SETTLE_MS) {
+                try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+            }
+
+            // Fire spooner
+            // Ensure launcher is ready before firing. If not ready within timeout, abort remaining shots.
+            boolean ready = waitForLauncherReady(LAUNCHER_READY_TIMEOUT_MS);
+            if (!ready) {
+                if (telemetry != null) telemetry.addData("ShooterSequence", "Launcher not ready for shot %d; aborting remaining shots", idx+1);
+                break;
+            }
+            spooner.fire();
+
+            long start = System.currentTimeMillis();
+            boolean spoonerDone = false;
+            while (!stopRequested && System.currentTimeMillis() - start < spoonerTimeoutMs) {
+                try { spooner.updateSpoonerState(); } catch (Exception ignored) {}
+                if (!spooner.isBusy()) { spoonerDone = true; break; }
+                try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+            }
+            if (spoonerDone) shotsFired++;
+
+            // small pause
+            long betweenStart = System.currentTimeMillis();
+            while (!stopRequested && System.currentTimeMillis() - betweenStart < betweenShotsMs) {
+                try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+            }
+        }
+
+        try { launcher.turnOffLauncher(); } catch (Exception ignored) {}
+        if (telemetry != null) telemetry.addData("ShooterSequence", "finished ordered shots: shotsFired=%d", shotsFired);
     }
 
     /** Convenience: start async shoot of 3 balls using defaults. Returns immediately. */
@@ -140,6 +241,12 @@ public class ShooterSequence {
             // Fire the spooner once
             if (telemetry != null) telemetry.addData("ShooterSequence", "Firing ball %d/%d", i+1, count);
 
+            // Ensure launcher is at commanded setpoint before firing this shot
+            boolean ready = waitForLauncherReady(LAUNCHER_READY_TIMEOUT_MS);
+            if (!ready) {
+                if (telemetry != null) telemetry.addData("ShooterSequence", "Launcher not ready for shot %d; aborting", i+1);
+                break;
+            }
             spooner.fire();
             long start = System.currentTimeMillis();
             boolean spoonerDone = false;
@@ -193,5 +300,46 @@ public class ShooterSequence {
             telemetry.addData("ShooterSequence", "finished: shotsFired=%d", shotsFired);
 
         }
+    }
+
+    /**
+     * Wait for the launcher to reach its commanded setpoint (either TPS or power) within tolerances.
+     * Returns true if the launcher is within tolerance within the timeout, false otherwise.
+     */
+    private boolean waitForLauncherReady(long timeoutMs) {
+        if (launcher == null) return false;
+        long start = System.currentTimeMillis();
+        double desiredTPS = 0.0;
+        double desiredPower = 0.0;
+        try {
+            desiredTPS = launcher.getCurrentTPS();
+            desiredPower = launcher.getCurrentPower();
+        } catch (Exception ignored) {}
+
+        while (!stopRequested && System.currentTimeMillis() - start < timeoutMs) {
+            try {
+                double leftVel = launcher.getLeftVelocity();
+                double rightVel = launcher.getRightVelocity();
+                double avgVel = (Math.abs(leftVel) + Math.abs(rightVel)) / 2.0;
+
+                // If launcher is in closed-loop velocity mode (desiredTPS > small epsilon), use velocity gating
+                if (desiredTPS > 1.0) {
+                    double err = Math.abs(avgVel - desiredTPS);
+                    double frac = (desiredTPS > 0) ? (err / desiredTPS) : 1.0;
+                    if (frac <= LAUNCHER_TPS_TOLERANCE_FRAC) return true;
+                } else {
+                    // Otherwise fall back to comparing commanded power vs actual power
+                    double leftP = launcher.getLeftLaunchPower();
+                    double rightP = launcher.getRightLaunchPower();
+                    double avgP = (Math.abs(leftP) + Math.abs(rightP)) / 2.0;
+                    double errP = Math.abs(avgP - desiredPower);
+                    if (errP <= LAUNCHER_POWER_TOLERANCE) return true;
+                }
+            } catch (Exception ignored) {}
+
+            try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+        }
+
+        return false;
     }
 }
