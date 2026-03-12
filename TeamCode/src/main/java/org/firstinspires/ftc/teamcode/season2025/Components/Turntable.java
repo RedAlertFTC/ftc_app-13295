@@ -13,7 +13,8 @@ public class Turntable
         MOVING
     }
 
-    private TurntableState _currentState = TurntableState.RESTING;
+    // make volatile so other threads can observe state changes
+    private volatile TurntableState _currentState = TurntableState.RESTING;
 
     private Servo _turntable;
     private Telemetry _telemetry;
@@ -25,11 +26,12 @@ public class Turntable
     private int MAX_SLOT = 3;
     private int MIN_SLOT = 1;
 
-    public double MIN_POSITION = 0.06;
-    private double MIDDLE_POSITION = 0.52;
-    private double MAX_POSITION = 0.96;
+    public double MIN_POSITION = 0.05;
+    private double MIDDLE_POSITION = 0.51;
+    private double MAX_POSITION = 0.95;
 
-    long elapSpin = 200;
+    // servo settle time (ms) used when marking movement complete
+    long elapSpin = 500;
 
 
 
@@ -52,6 +54,9 @@ public class Turntable
     {
         _turntable = _hardwareMap.get(Servo.class, "turntable");
         _turntable.setPosition(MIN_POSITION);
+        _currentPosition = MIN_POSITION;
+        _currentSlot = 1;
+        _currentState = TurntableState.RESTING;
     }
 
     public void increaseIndex() {
@@ -73,23 +78,21 @@ public class Turntable
         }
         if(_currentSlot > MIN_SLOT) {
             _currentSlot--;
-            //updateCurrentSlot();
+            updateCurrentSlot();
         }
     }
 
     public void moveToIndex(int index) {
         if(index >= MIN_SLOT && index <= MAX_SLOT) {
-            if(index != _currentSlot && _currentState == TurntableState.RESTING) {
-                _currentSlot = index;
-                _currentState = TurntableState.MOVING;
-                updateCurrentSlot();
-            }
+            // Always command the servo position for the requested index so homing works
+            _currentSlot = index;
+            _currentState = TurntableState.MOVING;
+            updateCurrentSlot();
         }
     }
 
     public void updateCurrentSlot()
     {
-        long startMs = System.currentTimeMillis();
         _currentState = TurntableState.MOVING;
 
         if(_currentSlot == 1) {
@@ -107,9 +110,22 @@ public class Turntable
             _currentPosition = MAX_POSITION;
         }
 
-//        if(System.currentTimeMillis() > (startMs + elapSpin)){
-//            _currentState = TurntableState.RESTING;
-//        }
+        // Start a short daemon thread to clear MOVING state after the servo has time to move.
+        final long settleMs = elapSpin;
+        Thread t = new Thread(() -> {
+            try { Thread.sleep(settleMs); } catch (InterruptedException ignored) {}
+            _currentState = TurntableState.RESTING;
+        }, "Turntable-Settle");
+        t.setDaemon(true);
+        t.start();
+
+        // Report telemetry if available to help debug homing behavior
+        try {
+            if (_telemetry != null) {
+                _telemetry.addData("Turntable", "moved to slot=%d pos=%.3f busy=%b", _currentSlot, _currentPosition, isBusy());
+
+            }
+        } catch (Exception ignored) {}
     }
 
     public boolean isBusy() {

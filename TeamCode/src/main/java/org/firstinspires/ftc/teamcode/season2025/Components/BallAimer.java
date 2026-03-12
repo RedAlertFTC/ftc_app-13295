@@ -27,11 +27,12 @@ public class BallAimer
         CurrentZone = Math.max(1, Math.min(CurrentZone, (int)AmountOfZones));
     }
 
-    public void calculateDesiredPower(){
+    public double calculateDesiredPower(){
         PowerChange = MaxPower - MinPower;
          PowerPerZone = PowerChange / AmountOfZones;
          PowerAddition = PowerPerZone * CurrentZone;
          DesiredPower = MinPower + PowerAddition;
+         return DesiredPower;
     }
 
     public void calculateDesiredAngle(){

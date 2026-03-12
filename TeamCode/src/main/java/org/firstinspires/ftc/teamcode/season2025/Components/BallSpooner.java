@@ -11,7 +11,7 @@ public class BallSpooner {
     private final HardwareMap _hardwareMap;
     private final Telemetry _telemetry;
 
-    private final long elapTrigger = 500; // ms
+    private final long elapTrigger = 300; // ms
 
     private long startMs = 0;        // timing transitions
     private long stateStartMs = 0;   // state duration tracking

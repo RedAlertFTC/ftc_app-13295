@@ -14,9 +14,8 @@ import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 
-@Autonomous(name="OtosAutoRedWall", group = "Robot")
-@Disabled
-public class OtosAutoRedWall extends LinearOpMode {
+@Autonomous(name="V4AutoBlueWall", group = "Robot")
+public class V4AutoBlueWall extends LinearOpMode {
 
     private SparkFunOTOS myOtos;
 
@@ -92,8 +91,8 @@ public class OtosAutoRedWall extends LinearOpMode {
             }
 
             if (pos.x >= 19.5 && strafeReady){
-                if (pos.y <= 15.5){
-                   // StrafeLeft();
+                if (pos.y >= -15.5){
+                    //StrafeRight();
                 }
                 else {
                     stopMoving();
@@ -128,6 +127,13 @@ public class OtosAutoRedWall extends LinearOpMode {
         backLeftDrive.setPower(0.5);
         frontRightDrive.setPower(0.5);
         backRightDrive.setPower(-0.5);
+    }
+
+    private void StrafeRight(){
+        frontLeftDrive.setPower(0.5);
+        backLeftDrive.setPower(-0.5);
+        frontRightDrive.setPower(-0.5);
+        backRightDrive.setPower(0.5);
     }
 
     public void Forward(){
