@@ -85,6 +85,28 @@ public class AprilTagHone {
     /** Get current aim offset (degrees). */
     public double getAimOffsetDegrees() { return this.aimOffsetDegrees; }
 
+    /**
+     * Motif pattern decoded from AprilTag IDs 21, 22, or 23.
+     * NONE means no motif tag has been detected yet.
+     * GPP = tag 21, PGP = tag 22, PPG = tag 23.
+     */
+    public enum MotifPattern {
+        NONE,
+        GPP,  // tag 21
+        PGP,  // tag 22
+        PPG   // tag 23
+    }
+
+    // Latches on the first motif tag seen; never resets automatically.
+    // Call resetMotif() to clear it.
+    private MotifPattern detectedMotif = MotifPattern.NONE;
+
+    /** Returns the motif pattern detected so far (NONE if not yet seen). */
+    public MotifPattern getDetectedMotif() { return detectedMotif; }
+
+    /** Clears the latched motif so detection can start fresh. */
+    public void resetMotif() { detectedMotif = MotifPattern.NONE; }
+
     public static class HoneResult {
         public boolean valid = false; // true if limelight had a valid target
         public double forwardPower = 0.0;
@@ -185,6 +207,20 @@ public class AprilTagHone {
         }
 
         if (result != null && result.isValid()) {
+            // Always scan all visible fiducials for motif tags (21/22/23), regardless of
+            // which tag is being honed. Latches on first sighting; call resetMotif() to clear.
+            try {
+                java.util.List<com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult> allFrs = result.getFiducialResults();
+                if (allFrs != null && detectedMotif == MotifPattern.NONE) {
+                    for (com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult fr : allFrs) {
+                        int fid = fr.getFiducialId();
+                        if (fid == 21) { detectedMotif = MotifPattern.GPP; break; }
+                        else if (fid == 22) { detectedMotif = MotifPattern.PGP; break; }
+                        else if (fid == 23) { detectedMotif = MotifPattern.PPG; break; }
+                    }
+                }
+            } catch (Exception ignored) {}
+
             // If caller requested a specific fiducial, ensure it's present. If it's not present
             // treat the result as "no valid tag" so the hone will run its search rotation instead.
             boolean requiredPresent = true;
@@ -197,7 +233,6 @@ public class AprilTagHone {
                             if (fr.getFiducialId() == requiredFiducialId) {
                                 basketResult = fr;
                                 requiredPresent = true;
-                                break;
                             }
                         }
                     }
