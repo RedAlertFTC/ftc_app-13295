@@ -131,9 +131,10 @@ public class DecodeV1Teleop extends LinearOpMode
     private DebouncedButton _launcherPresetThree;
     private DebouncedButton _turnOffLauncher;
     private DebouncedButton _shootAllBalls;
-    // Target selection for AprilTag motifs
-    private int[] targetOptions = new int[] { -1, 20, 24, 21, 22, 23 }; // -1 = any
-    private String[] targetLabels = new String[] { "ANY", "BlueGoal", "RedGoal", "GPP", "PGP", "PPG" };
+    // Target selection for AprilTag (motif IDs removed so honing cannot target motif fiducials)
+    // Only allow ANY, BlueGoal (20), and RedGoal (24). Motif IDs 21/22/23 are intentionally excluded.
+    private int[] targetOptions = new int[] { -1, 20, 24 }; // -1 = any
+    private String[] targetLabels = new String[] { "ANY", "BlueGoal", "RedGoal" };
     private int targetIndex = 0;
     private DebouncedButton _cycleTargetLeft;
     private DebouncedButton _cycleTargetRight;
@@ -728,8 +729,8 @@ public class DecodeV1Teleop extends LinearOpMode
 
             // Show the elapsed game time and wheel power.
            // telemetry.addData("Status", "Run Time: " + runtime.toString());
-          //  telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-            //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
+            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
 
             if(FeatureFlags.launchEnabled())
             {

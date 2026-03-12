@@ -126,34 +126,64 @@ public class V4AutoRedWall extends LinearOpMode {
             boolean aimed = false;
             while (opModeIsActive() && System.currentTimeMillis() - honeStart < HONE_TIMEOUT_MS) {
                 AprilTagHone.HoneResult r = aprilTagHone.honeStored();
-                telemetry.addData("Hone.valid(24)", r.valid);
+                telemetry.addData("Hone.valid", r.valid);
                 telemetry.addData("turnPower", r.turnPower);
                 telemetry.addData("forwardPower", r.forwardPower);
+                telemetry.addData("Motif", aprilTagHone.getDetectedMotif().name());
                 telemetry.update();
                 if (r.valid && r.turnPower == 0.0 && r.forwardPower == 0.0) { aimed = true; break; }
                 sleep(20);
             }
             stopMoving();
 
+            // Determine shoot order from the motif detected during honing.
+            // Green ball is always in slot 1; the motif encodes which basket each color goes to.
+            //   GPP (tag 21): G→basket1, P→basket2, P→basket3  → shoot slots [1, 2, 3]
+            //   PGP (tag 22): P→basket1, G→basket2, P→basket3  → shoot slots [2, 1, 3]
+            //   PPG (tag 23): P→basket1, P→basket2, G→basket3  → shoot slots [2, 3, 1]
+            //   NONE (no motif seen): fall back to default order [1, 2, 3]
+            AprilTagHone.MotifPattern motif = aprilTagHone.getDetectedMotif();
+            int[] shootOrder;
+            if (motif == AprilTagHone.MotifPattern.PGP) {
+                shootOrder = new int[]{2, 1, 3};
+            } else if (motif == AprilTagHone.MotifPattern.PPG) {
+                shootOrder = new int[]{2, 3, 1};
+            } else {
+                // GPP or NONE — both use [1, 2, 3]
+                shootOrder = new int[]{1, 2, 3};
+            }
+
             // Shoot three balls (blocking)
             if (shooterSequence != null) {
-                telemetry.addLine("Shooting 3 balls...");
+                telemetry.addData("Motif detected", motif.name());
+                telemetry.addData("Shoot order", shootOrder[0] + ", " + shootOrder[1] + ", " + shootOrder[2]);
                 telemetry.update();
-                shooterSequence.shootAllRapidly();
+                shooterSequence.shootInOrder(shootOrder);
                 try { aprilTagHone.stop(); } catch (Exception ignored) {}
             } else {
                 telemetry.addLine("Shooter components missing; cannot shoot");
                 telemetry.update();
             }
 
+            // Drive backward 9 inches after shooting
+            telemetry.addLine("Driving backward 9 inches...");
+            telemetry.update();
+            myOtos.resetTracking();
+            while (opModeIsActive()) {
+                SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+                telemetry.addData("X", pos.x);
+                telemetry.update();
+                if (pos.x <= -14.0) break;
+                Backward();
+                sleep(20);
+            }
+            stopMoving();
+
             telemetry.addLine("Auto sequence complete");
             telemetry.update();
             // end opmode
             while (opModeIsActive()) { stopMoving(); sleep(50); }
         }
-
-
-
     }
 
 
