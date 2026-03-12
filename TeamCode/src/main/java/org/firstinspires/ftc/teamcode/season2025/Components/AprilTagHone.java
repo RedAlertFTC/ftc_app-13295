@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.season2025.Components;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -71,7 +72,8 @@ public class AprilTagHone {
     // positive fiducial id (e.g., 24), the update() method will treat results as "no target"
     // unless that specific fiducial is visible. This allows callers to use the hone's built-in
     // searching behavior while restricting positioning to one ID.
-    private int requiredFiducialId = -1;
+    // Default to require fiducial 24 so other april tags (motifs) are ignored by default.
+    private int requiredFiducialId = 24;
 
     public void setRequiredFiducialId(int id) { this.requiredFiducialId = id; }
     public int getRequiredFiducialId() { return this.requiredFiducialId; }
@@ -174,6 +176,7 @@ public class AprilTagHone {
             return r;
         }
 
+        LLResultTypes.FiducialResult basketResult = null;
         LLResult result = null;
         try {
             result = limelight.getLatestResult();
@@ -191,7 +194,11 @@ public class AprilTagHone {
                     java.util.List<com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult> frs = result.getFiducialResults();
                     if (frs != null) {
                         for (com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult fr : frs) {
-                            if (fr.getFiducialId() == requiredFiducialId) { requiredPresent = true; break; }
+                            if (fr.getFiducialId() == requiredFiducialId) {
+                                basketResult = fr;
+                                requiredPresent = true;
+                                break;
+                            }
                         }
                     }
                 } catch (Exception ignored) { requiredPresent = false; }
@@ -217,9 +224,14 @@ public class AprilTagHone {
                     r.distanceIn = distanceCm * 0.393701;
                 }
 
-                // Turn PID - use aimOffsetDegrees as the setpoint so we don't point exactly at the tag
-                // but instead offset the crosshair by aimOffsetDegrees (see setter docs above).
-                double error = result.getTx() - aimOffsetDegrees;
+                // Turn PID - use the overall limelight tx (horizontal angle) adjusted by the aimOffsetDegrees.
+                // Note: the Limelight API exposes per-fiducial IDs, but not a reliable per-fiducial "tx" in
+                // the SDK; therefore we use result.getTx() here. To avoid aiming at the wrong tag, callers
+                // should set `requiredFiducialId` (e.g., 24) so that the hone treats results as invalid unless
+                // that specific fiducial is visible. This prevents the controller from claiming a valid target
+                // when only other tags (like motifs) are visible.
+                //double error = result.getTx() - aimOffsetDegrees;
+                double error = basketResult.getTargetXDegrees() - aimOffsetDegrees;
                 integralTurn += error;
                 double derivative = error - lastErrorTurn;
                 r.turnPower = (kP_turn * error) + (kI_turn * integralTurn) + (kD_turn * derivative);
@@ -358,6 +370,22 @@ public class AprilTagHone {
             return false;
         }
         if (result == null || !result.isValid()) return false;
+
+        // If a specific fiducial is required, ensure it's present in the latest result. If the
+        // required fiducial is not visible, we are not 'aimed' at it.
+        if (requiredFiducialId != -1) {
+            boolean requiredPresent = false;
+            try {
+                java.util.List<com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult> frs = result.getFiducialResults();
+                if (frs != null) {
+                    for (com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult fr : frs) {
+                        if (fr.getFiducialId() == requiredFiducialId) { requiredPresent = true; break; }
+                    }
+                }
+            } catch (Exception ignored) { requiredPresent = false; }
+            if (!requiredPresent) return false;
+        }
+
         double error = result.getTx() - aimOffsetDegrees;
         return Math.abs(error) <= turnDeadband;
     }
