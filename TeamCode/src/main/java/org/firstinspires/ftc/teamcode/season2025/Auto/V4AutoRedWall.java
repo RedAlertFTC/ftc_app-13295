@@ -45,6 +45,7 @@ public class V4AutoRedWall extends LinearOpMode {
     public void runOpMode() {
 
 
+
         frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
         frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
         backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
@@ -91,6 +92,13 @@ public class V4AutoRedWall extends LinearOpMode {
 
             if (_ballLauncher != null && _turntable != null && _ballSpooner != null) {
                 shooterSequence = new ShooterSequence(_ballLauncher, _turntable, _ballSpooner, telemetry);
+                shooterSequence.DEFAULT_SPINUP_MS = 1500;
+                shooterSequence.DEFAULT_BETWEEN_SHOTS_MS = 1000;
+                shooterSequence.DEFAULT_SPOONER_TIMEOUT_MS = 1900;
+                shooterSequence.DEFAULT_TURNTABLE_SETTLE_MS = 950;
+
+
+
             }
             if (_ballLauncher != null) {
                 _ballLauncher.setLaunchPresetAuto();
@@ -106,7 +114,7 @@ public class V4AutoRedWall extends LinearOpMode {
                 telemetry.addData("Y", pos.y);
                 telemetry.update();
                 // Stop once we've moved roughly -2.0 inches in X (backwards)
-                if (pos.x <= -2.0) break;
+                if (pos.x <= -4.0) break;
                 Backward();
                 sleep(20);
             }

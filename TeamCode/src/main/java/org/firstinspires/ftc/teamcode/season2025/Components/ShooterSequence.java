@@ -20,10 +20,10 @@ public class ShooterSequence {
     private final Telemetry telemetry;
 
     // Defaults
-    private final long DEFAULT_SPINUP_MS = 800; // ms to wait for launcher to reach speed
-    private final long DEFAULT_BETWEEN_SHOTS_MS = 300; // small pause between shots/advances
-    private final long DEFAULT_SPOONER_TIMEOUT_MS = 1400; // timeout per spooner fire
-    private final long DEFAULT_TURNTABLE_SETTLE_MS = 250; // wait after moving turntable
+    public long DEFAULT_SPINUP_MS = 800; // ms to wait for launcher to reach speed
+    public long DEFAULT_BETWEEN_SHOTS_MS = 300; // small pause between shots/advances
+    public long DEFAULT_SPOONER_TIMEOUT_MS = 1400; // timeout per spooner fire
+    public long DEFAULT_TURNTABLE_SETTLE_MS = 250; // wait after moving turntable
 
     // runtime state for async operation
     private volatile boolean running = false;

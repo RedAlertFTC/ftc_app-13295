@@ -86,11 +86,17 @@ public class V4AutoBlueWall extends LinearOpMode {
             // Require fiducial ID 24 for positioning; hone will search until it sees ID24
             aprilTagHone.setRequiredFiducialId(TARGET_TAG_ID);
             // Use a gentle search rotation so the robot slowly scans for ID24 instead of aggressively spinning
-            aprilTagHone.setSearchTurnPower(0.12);
+            aprilTagHone.setSearchTurnPower(-0.12);
             aprilTagHone.start();
 
             if (_ballLauncher != null && _turntable != null && _ballSpooner != null) {
                 shooterSequence = new ShooterSequence(_ballLauncher, _turntable, _ballSpooner, telemetry);
+                shooterSequence.DEFAULT_SPINUP_MS = 1500;
+                shooterSequence.DEFAULT_BETWEEN_SHOTS_MS = 1000;
+                shooterSequence.DEFAULT_SPOONER_TIMEOUT_MS = 1900;
+                shooterSequence.DEFAULT_TURNTABLE_SETTLE_MS = 950;
+
+
             }
             if (_ballLauncher != null) {
                 _ballLauncher.setLaunchPresetAuto();
@@ -106,7 +112,7 @@ public class V4AutoBlueWall extends LinearOpMode {
                 telemetry.addData("Y", pos.y);
                 telemetry.update();
                 // Stop once we've moved roughly -2.0 inches in X (backwards)
-                if (pos.x <= -2.0) break;
+                if (pos.x <= -4.0) break;
                 Backward();
                 sleep(20);
             }
@@ -114,13 +120,14 @@ public class V4AutoBlueWall extends LinearOpMode {
 
             // Hone to the positioning tag (ID 24) and then shoot
             telemetry.addLine("Honing to AprilTag ID " + TARGET_TAG_ID + "...");
+          //  telemetry.addData("Hone Result", AprilTagHone.r);
             telemetry.update();
             final long HONE_TIMEOUT_MS = 8000;
             long honeStart = System.currentTimeMillis();
             try {
                 aprilTagHone.reset();
                 aprilTagHone.setRequiredFiducialId(TARGET_TAG_ID);
-                aprilTagHone.setSearchTurnPower(0.12);
+                aprilTagHone.setSearchTurnPower(-0.12);
             } catch (Exception ignored) {}
 
             boolean aimed = false;
