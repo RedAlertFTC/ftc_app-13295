@@ -27,8 +27,8 @@ public class Turntable
     private int MIN_SLOT = 1;
 
     public double MIN_POSITION = 0.05;
-    private double MIDDLE_POSITION = 0.51;
-    private double MAX_POSITION = 0.95;
+    private double MIDDLE_POSITION = 0.49;
+    private double MAX_POSITION = 0.94;
 
     // servo settle time (ms) used when marking movement complete
     long elapSpin = 500;

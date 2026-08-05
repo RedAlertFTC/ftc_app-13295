@@ -85,8 +85,8 @@ import org.firstinspires.ftc.teamcode.testing.PedroTesting;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="DecodeV1Teleop", group="Linear OpMode")
-public class DecodeV1Teleop extends LinearOpMode
+@TeleOp(name="DecodeV1EasyOp", group="Linear OpMode")
+public class DecodeV1EasyOp extends LinearOpMode
 {
 
     public teleOpAlliance _teleOpAlliance;
@@ -135,7 +135,7 @@ public class DecodeV1Teleop extends LinearOpMode
     // Only allow ANY, BlueGoal (20), and RedGoal (24). Motif IDs 21/22/23 are intentionally excluded.
     private int[] targetOptions = new int[] { -1, 20, 24 }; // -1 = any
     private String[] targetLabels = new String[] { "ANY", "BlueGoal", "RedGoal" };
-    private int targetIndex = 0;
+    private int targetIndex; // start with no selection; driver can cycle to a specific target or ANY before homing
     private DebouncedButton _cycleTargetLeft;
     private DebouncedButton _cycleTargetRight;
     private double searchTurnPower = 0.22; // turn power used while searching for the selected tag
@@ -235,6 +235,9 @@ public class DecodeV1Teleop extends LinearOpMode
         hone.start();
         hone.reset();
 
+       // hone.requiredFiducialId = -1;
+
+
         frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -252,11 +255,11 @@ public class DecodeV1Teleop extends LinearOpMode
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             // Live gain adjustment: press gamepad1 A to increase, B to decrease (clamped 1..8)
-            if (gamepad1.a) {
-                gain = Math.min(8.0f, gain + 0.5f);
-            } else if (gamepad1.x) {
-                gain = Math.max(1.0f, gain - 0.5f);
-            }
+//            if (gamepad1.a) {
+//                gain = Math.min(8.0f, gain + 0.5f);
+//            } else if (gamepad1.x) {
+//                gain = Math.max(1.0f, gain - 0.5f);
+//            }
 
             // Read color sensor each loop after ensuring it's available and applying gain.
             NormalizedRGBA colors = null;
@@ -280,15 +283,15 @@ public class DecodeV1Teleop extends LinearOpMode
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
             if(forwardDriving) {
-                 axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-                 lateral =  gamepad1.left_stick_x;
-                 yaw     =  gamepad1.right_stick_x;
+                axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+                lateral =  gamepad1.left_stick_x;
+                yaw     =  gamepad1.right_stick_x;
 
             } else {
                 // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-                 axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-                 lateral =  -gamepad1.left_stick_x;
-                 yaw     =  gamepad1.right_stick_x;
+                axial   = gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+                lateral =  -gamepad1.left_stick_x;
+                yaw     =  gamepad1.right_stick_x;
             }
 
 
@@ -484,10 +487,10 @@ public class DecodeV1Teleop extends LinearOpMode
                 prevHoneLeft = leftOut;
                 prevHoneRight = rightOut;
 
-               // telemetry.addData("Hone", "ENGAGED");
+                // telemetry.addData("Hone", "ENGAGED");
                 //telemetry.addData("Hone valid", r.valid);
-               // telemetry.addData("Hone dist (in)", r.distanceIn);
-               // telemetry.addData("Hone left/right", "%.2f / %.2f", leftOut, rightOut);
+                // telemetry.addData("Hone dist (in)", r.distanceIn);
+                // telemetry.addData("Hone left/right", "%.2f / %.2f", leftOut, rightOut);
 
             } else {
                 // If we were honing and now stopped, restore motor modes for normal driving
@@ -534,7 +537,7 @@ public class DecodeV1Teleop extends LinearOpMode
                 // Show the elapsed game time and wheel power.
                 //telemetry.addData("Status", "Run Time: " + runtime.toString());
                 //telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-               // telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+                // telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
             }
 
             if (_toggleRobotDirection.getRise()){
@@ -547,18 +550,18 @@ public class DecodeV1Teleop extends LinearOpMode
             }
 
             // Cycle target selection with dpad left/right
-            if (!fixedTarget) {
-                if (_cycleTargetLeft.getRise()){
-                    targetIndex = (targetIndex - 1 + targetOptions.length) % targetOptions.length;
-                    telemetry.addData("SelectedTarget", targetLabels[targetIndex]);
-                }
-                if (_cycleTargetRight.getRise()){
-                    targetIndex = (targetIndex + 1) % targetOptions.length;
-                    telemetry.addData("SelectedTarget", targetLabels[targetIndex]);
-                }
-            } else {
-                telemetry.addData("SelectedTarget", targetLabels[targetIndex] + " (LOCKED)");
-            }
+//            if (!fixedTarget) {
+//                if (_cycleTargetLeft.getRise()){
+//                    targetIndex = (targetIndex - 1 + targetOptions.length) % targetOptions.length;
+//                    telemetry.addData("SelectedTarget", targetLabels[targetIndex]);
+//                }
+//                if (_cycleTargetRight.getRise()){
+//                    targetIndex = (targetIndex + 1) % targetOptions.length;
+//                    telemetry.addData("SelectedTarget", targetLabels[targetIndex]);
+//                }
+//            } else {
+//                telemetry.addData("SelectedTarget", targetLabels[targetIndex] + " (LOCKED)");
+//            }
 
 
             if(FeatureFlags.launchEnabled()) {
@@ -573,8 +576,8 @@ public class DecodeV1Teleop extends LinearOpMode
                     //_ballLauncher.decreaseLauncherSpeedByRPM();
                     _ballLauncher.decreaseLauncherSpeedByTPS();
                 }
-               // telemetry.addData("Launch:TPS", _ballLauncher.getCurrentTPS());
-              //  telemetry.addData("Launch:RPM", _ballLauncher.getCurrentRPM());
+                // telemetry.addData("Launch:TPS", _ballLauncher.getCurrentTPS());
+                //  telemetry.addData("Launch:RPM", _ballLauncher.getCurrentRPM());
                 telemetry.addData("Launch:Left:Velocity", _ballLauncher.getLeftVelocity());
                 telemetry.addData("Launch:Right:Velocity", _ballLauncher.getRightVelocity());
 
@@ -592,7 +595,7 @@ public class DecodeV1Teleop extends LinearOpMode
             if(FeatureFlags.turnTableEnabled()) {
 
                 if (_increaseIndex.getRise()){
-                   // telemetry.addData("Increase Index Presssed", "True");
+                    // telemetry.addData("Increase Index Presssed", "True");
                     //increase index
                     _turntable.increaseIndex();
                 }
@@ -624,7 +627,7 @@ public class DecodeV1Teleop extends LinearOpMode
                 try {
                     //telemetry.addData("Spooner:rawA", rawA);
                     //telemetry.addData("Spooner:debouncedRise", rise);
-                   // telemetry.addData("Spooner:state", _ballSpooner.SpoonerState());
+                    // telemetry.addData("Spooner:state", _ballSpooner.SpoonerState());
                     //telemetry.addData("Spooner:attempts", _ballSpooner.getFireAttempt());
                     //telemetry.addData("Spooner:fired", _ballSpooner.getFireCounter());
                 } catch (Exception ignored) {}
@@ -690,14 +693,14 @@ public class DecodeV1Teleop extends LinearOpMode
 
             // Determining the amount of red, green, and blue (fresh read each loop)
             if (colors != null) {
-               // telemetry.addData("Red", "%.3f", colors.red);
-               // telemetry.addData("Green", "%.3f", colors.green);
-               // telemetry.addData("Blue", "%.3f", colors.blue);
-               // telemetry.addData("Alpha", "%.3f", colors.alpha);
+                // telemetry.addData("Red", "%.3f", colors.red);
+                // telemetry.addData("Green", "%.3f", colors.green);
+                // telemetry.addData("Blue", "%.3f", colors.blue);
+                // telemetry.addData("Alpha", "%.3f", colors.alpha);
                 // also show the raw light value if the sensor supports OpticalDistanceSensor
                 try {
                     double light = ((OpticalDistanceSensor) colorSensor).getLightDetected();
-                   // telemetry.addData("LightDetected", "%.3f", light);
+                    // telemetry.addData("LightDetected", "%.3f", light);
                 } catch (Exception e) {
                     // not all NormalizedColorSensor implementations are OpticalDistanceSensor
                 }
@@ -705,7 +708,7 @@ public class DecodeV1Teleop extends LinearOpMode
 
 
             } else if (colorSensor == null) {
-               // telemetry.addData("ColorSensor", "not found");
+                // telemetry.addData("ColorSensor", "not found");
             } else {
                 //telemetry.addData("ColorSensor", "read error");
             }
@@ -725,10 +728,10 @@ public class DecodeV1Teleop extends LinearOpMode
                     _lightController.SetLightTwo(LightColor.OFF);
                 }
             }
-             telemetry.update();
+            telemetry.update();
 
             // Show the elapsed game time and wheel power.
-           // telemetry.addData("Status", "Run Time: " + runtime.toString());
+            // telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
 
@@ -751,26 +754,26 @@ public class DecodeV1Teleop extends LinearOpMode
                     _lightController.SetLightOne(LightColor.WHITE);
                 }
 
-                if (_turnOffLauncher.getRise()){
-                    _ballLauncher.turnOffLauncher();
-                    _lightController.SetLightOne(LightColor.OFF);
-                }
+//                if (_turnOffLauncher.getRise()){
+//                    _ballLauncher.turnOffLauncher();
+//                    _lightController.SetLightOne(LightColor.OFF);
+//                }
 
 
 
 
-               // telemetry.addData("Launch Power", _ballLauncher.getCurrentPower());
+                // telemetry.addData("Launch Power", _ballLauncher.getCurrentPower());
                 //telemetry.addData("LauncherRPM", _ballLauncher.currentRPM());
                 //telemetry.addData("Current TPS", _ballLauncher.currentTPS());
 
                 //telemetry.addData("Left Launch Power", _ballLauncher.getLeftLaunchPower());
-               // telemetry.addData("Right Launch Power", _ballLauncher.getRightLaunchPower());
+                // telemetry.addData("Right Launch Power", _ballLauncher.getRightLaunchPower());
             }
 
             if(FeatureFlags.turnTableEnabled())
             {
                 telemetry.addData("Turntable Slot", _turntable.currentSlot());
-               // telemetry.addData("Turntable Pos", _turntable._currentPosition);
+                // telemetry.addData("Turntable Pos", _turntable._currentPosition);
             }
 
         }
@@ -821,26 +824,26 @@ public class DecodeV1Teleop extends LinearOpMode
 
         //Gamepad 1 configuration
         _driverOneGamepad = new DisasterGamePad(gamepad1);
-        _toggleRobotDirection = new DebouncedButton(_driverOneGamepad.getAButton());
+        _toggleRobotDirection = new DebouncedButton(_driverOneGamepad.getLeftStickButton());
 
         // Target selection buttons (cycle left/right using dpad)
-        _cycleTargetLeft = new DebouncedButton(_driverOneGamepad.getDpadLeft());
-        _cycleTargetRight = new DebouncedButton(_driverOneGamepad.getDpadRight());
+       // _cycleTargetLeft = new DebouncedButton(_driverOneGamepad.getDpadLeft());
+       // _cycleTargetRight = new DebouncedButton(_driverOneGamepad.getDpadRight());
 
         //Gamepad 2 configuration
-        _driverTwoGamepad = new DisasterGamePad(gamepad2);
-        _decreaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadLeft());
-        _increaseLaunchPower = new DebouncedButton(_driverTwoGamepad.getDpadRight());
-        _decreaseIndex = new DebouncedButton(_driverTwoGamepad.getLeftBumper());
-        _increaseIndex = new DebouncedButton(_driverTwoGamepad.getRightBumper());
-        _popBall = new DebouncedButton(_driverTwoGamepad.getAButton());
-        _aimLauncherDown = new DebouncedButton(_driverTwoGamepad.getDpadDown());
-        _aimLauncherUp = new DebouncedButton(_driverTwoGamepad.getDpadUp());
-        _launcherPresetOne = new DebouncedButton(_driverTwoGamepad.getXButton());
-        _launcherPresetTwo = new DebouncedButton(_driverTwoGamepad.getYButton());
-        _launcherPresetThree = new DebouncedButton(_driverTwoGamepad.getBButton());
-        _turnOffLauncher = new DebouncedButton(_driverTwoGamepad.getLeftStickButton());
-        _shootAllBalls = new DebouncedButton(_driverTwoGamepad.getRightStickButton());
+        //_driverTwoGamepad = new DisasterGamePad(gamepad2);
+        _decreaseLaunchPower = new DebouncedButton(_driverOneGamepad.getDpadLeft());
+        _increaseLaunchPower = new DebouncedButton(_driverOneGamepad.getDpadRight());
+        _decreaseIndex = new DebouncedButton(_driverOneGamepad.getLeftBumper());
+        _increaseIndex = new DebouncedButton(_driverOneGamepad.getRightBumper());
+        _popBall = new DebouncedButton(_driverOneGamepad.getAButton());
+        _aimLauncherDown = new DebouncedButton(_driverOneGamepad.getDpadDown());
+        _aimLauncherUp = new DebouncedButton(_driverOneGamepad.getDpadUp());
+        _launcherPresetOne = new DebouncedButton(_driverOneGamepad.getXButton());
+        _launcherPresetTwo = new DebouncedButton(_driverOneGamepad.getYButton());
+        _launcherPresetThree = new DebouncedButton(_driverOneGamepad.getBButton());
+        //_turnOffLauncher = new DebouncedButton(_driverOneGamepad.getLeftStickButton());
+        _shootAllBalls = new DebouncedButton(_driverOneGamepad.getRightStickButton());
     }
 
     public void setGoalAprilTag(int aprilTagID){

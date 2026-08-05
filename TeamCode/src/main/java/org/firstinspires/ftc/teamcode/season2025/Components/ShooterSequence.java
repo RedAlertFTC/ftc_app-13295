@@ -20,19 +20,24 @@ public class ShooterSequence {
     private final Telemetry telemetry;
 
     // Defaults
-    private final long DEFAULT_SPINUP_MS = 800; // ms to wait for launcher to reach speed
-    private final long DEFAULT_BETWEEN_SHOTS_MS = 300; // small pause between shots/advances
-    private final long DEFAULT_SPOONER_TIMEOUT_MS = 1400; // timeout per spooner fire
-    private final long DEFAULT_TURNTABLE_SETTLE_MS = 250; // wait after moving turntable
+    public long DEFAULT_SPINUP_MS = 800; // ms to wait for launcher to reach speed
+    public long DEFAULT_BETWEEN_SHOTS_MS = 300; // small pause between shots/advances
+    public long DEFAULT_SPOONER_TIMEOUT_MS = 1400; // timeout per spooner fire
+    public long DEFAULT_TURNTABLE_SETTLE_MS = 250; // wait after moving turntable
 
     // runtime state for async operation
     private volatile boolean running = false;
     private volatile boolean stopRequested = false;
 
+    // Logical-to-physical slot mapping. Index 0 corresponds to logical slot 1.
+    // Default is identity mapping: logical 1->physical 1, 2->2, 3->3.
+    private int[] slotMapping = new int[] {1,2,3};
+
     // Launcher readiness tolerances
-    private final double LAUNCHER_TPS_TOLERANCE_FRAC = 0.02; // 5% tolerance for velocity mode
-    private final double LAUNCHER_POWER_TOLERANCE = 0.03; // absolute power tolerance for open-loop power mode
-    private final long LAUNCHER_READY_TIMEOUT_MS = 1500; // how long to wait for launcher to settle before giving up
+    // Relaxed to tolerate brief velocity/power swings after a firing event.
+    private final double LAUNCHER_TPS_TOLERANCE_FRAC = 0.08; // 8% tolerance for velocity mode (was 0.02)
+    private final double LAUNCHER_POWER_TOLERANCE = 0.06; // absolute power tolerance for open-loop power mode (was 0.03)
+    private final long LAUNCHER_READY_TIMEOUT_MS = 2000; // how long to wait for launcher to settle before giving up (was 1500)
 
     public ShooterSequence(BallLauncher launcher, Turntable turntable, BallSpooner spooner, Telemetry telemetry) {
         this.launcher = launcher;
@@ -102,9 +107,16 @@ public class ShooterSequence {
         int shotsFired = 0;
         for (int idx = 0; idx < order.length && !stopRequested; idx++) {
             int slot = order[idx];
+            // translate logical slot to physical slot using mapping
+            int physicalSlot = slot;
+            if (slot >= 1 && slot <= slotMapping.length) {
+                physicalSlot = slotMapping[slot-1];
+            }
             if (telemetry != null) telemetry.addData("ShooterSequence", "Moving to slot %d for shot %d/%d", slot, idx+1, order.length);
             try {
-                turntable.moveToIndex(slot);
+                telemetry.addData("ShooterSequence", "logical->physical %d->%d", slot, physicalSlot);
+                telemetry.update();
+                turntable.moveToIndex(physicalSlot);
                 try { turntable.updateCurrentSlot(); } catch (Exception ignored) {}
             } catch (Exception ignored) {}
 
@@ -112,6 +124,12 @@ public class ShooterSequence {
             while (!stopRequested && System.currentTimeMillis() - settleStart < DEFAULT_TURNTABLE_SETTLE_MS) {
                 try { Thread.sleep(10); } catch (InterruptedException ignored) {}
             }
+
+            // Report where the turntable reports it is after settling so operators can diagnose
+            try {
+                if (telemetry != null) telemetry.addData("ShooterSequence", "currentSlot after move=%d", turntable.currentSlot());
+                if (telemetry != null) telemetry.update();
+            } catch (Exception ignored) {}
 
             // Fire spooner
             // Ensure launcher is ready before firing. If not ready within timeout, abort remaining shots.
@@ -316,6 +334,9 @@ public class ShooterSequence {
             desiredPower = launcher.getCurrentPower();
         } catch (Exception ignored) {}
 
+        double lastAvgVel = 0.0;
+        double lastAvgPower = 0.0;
+
         while (!stopRequested && System.currentTimeMillis() - start < timeoutMs) {
             try {
                 double leftVel = launcher.getLeftVelocity();
@@ -327,6 +348,9 @@ public class ShooterSequence {
                     double err = Math.abs(avgVel - desiredTPS);
                     double frac = (desiredTPS > 0) ? (err / desiredTPS) : 1.0;
                     if (frac <= LAUNCHER_TPS_TOLERANCE_FRAC) return true;
+
+                    // Save last seen values for fallback
+                    lastAvgVel = avgVel;
                 } else {
                     // Otherwise fall back to comparing commanded power vs actual power
                     double leftP = launcher.getLeftLaunchPower();
@@ -334,12 +358,55 @@ public class ShooterSequence {
                     double avgP = (Math.abs(leftP) + Math.abs(rightP)) / 2.0;
                     double errP = Math.abs(avgP - desiredPower);
                     if (errP <= LAUNCHER_POWER_TOLERANCE) return true;
+
+                    lastAvgPower = avgP;
                 }
             } catch (Exception ignored) {}
 
             try { Thread.sleep(20); } catch (InterruptedException ignored) {}
         }
 
+        // Final fallback: if we were in velocity mode and we're close enough (within 10%), allow firing
+        try {
+            if (desiredTPS > 1.0) {
+                double leftVel = launcher.getLeftVelocity();
+                double rightVel = launcher.getRightVelocity();
+                double avgVel = (Math.abs(leftVel) + Math.abs(rightVel)) / 2.0;
+                if (desiredTPS > 0 && avgVel >= desiredTPS * 0.90) {
+                    if (telemetry != null) telemetry.addData("ShooterSequence", "Launcher approx ready (%.1f/%.1f TPS); allowing fire", avgVel, desiredTPS);
+                    return true;
+                }
+            } else {
+                double leftP = launcher.getLeftLaunchPower();
+                double rightP = launcher.getRightLaunchPower();
+                double avgP = (Math.abs(leftP) + Math.abs(rightP)) / 2.0;
+                double errP = Math.abs(avgP - desiredPower);
+                if (errP <= (LAUNCHER_POWER_TOLERANCE * 1.5)) {
+                    if (telemetry != null) telemetry.addData("ShooterSequence", "Launcher approx ready (p=%.3f desired=%.3f); allowing fire", avgP, desiredPower);
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {}
+
         return false;
     }
+
+    /**
+     * Set a custom logical->physical slot mapping. The array must have length 3 and contain
+     * a permutation of {1,2,3}. For example, to make logical order [1,2,3] map to physical
+     * slots [2,1,3], pass {2,1,3}.
+     */
+    public void setSlotMapping(int[] mapping) {
+        if (mapping == null || mapping.length != 3) return;
+        boolean valid = true;
+        boolean[] seen = new boolean[4];
+        for (int v : mapping) {
+            if (v < 1 || v > 3) { valid = false; break; }
+            if (seen[v]) { valid = false; break; }
+            seen[v] = true;
+        }
+        if (valid) slotMapping = mapping.clone();
+    }
+
+    public int[] getSlotMapping() { return slotMapping.clone(); }
 }
