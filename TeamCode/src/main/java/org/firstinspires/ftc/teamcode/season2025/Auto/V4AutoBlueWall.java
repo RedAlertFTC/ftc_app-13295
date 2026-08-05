@@ -21,7 +21,7 @@ public class V4AutoBlueWall extends LinearOpMode {
 
     private SparkFunOTOS myOtos;
 
-
+    private ElapsedTime time = new ElapsedTime();
     private DcMotor frontLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backLeftDrive = null;
@@ -106,15 +106,21 @@ public class V4AutoBlueWall extends LinearOpMode {
             telemetry.addLine("Driving backward 2 inches...");
             telemetry.update();
             runtime.reset();
+            time.startTime();
             while (opModeIsActive()) {
                 SparkFunOTOS.Pose2D pos = myOtos.getPosition();
                 telemetry.addData("X", pos.x);
                 telemetry.addData("Y", pos.y);
                 telemetry.update();
                 // Stop once we've moved roughly -2.0 inches in X (backwards)
-                if (pos.x <= -4.0) break;
-                Backward();
-                sleep(20);
+               // sleep(10000);
+                //time.reset();
+                if (time.seconds() > 8){
+                    if (pos.x <= -4.0) break;
+                    Backward();
+                    sleep(20);
+                }
+
             }
             stopMoving();
 

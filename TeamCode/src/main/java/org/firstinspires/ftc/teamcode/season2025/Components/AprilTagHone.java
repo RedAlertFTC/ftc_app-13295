@@ -73,7 +73,7 @@ public class AprilTagHone {
     // unless that specific fiducial is visible. This allows callers to use the hone's built-in
     // searching behavior while restricting positioning to one ID.
     // Default to require fiducial 24 so other april tags (motifs) are ignored by default.
-    private int requiredFiducialId = 24;
+    public int requiredFiducialId = 24;
 
     public void setRequiredFiducialId(int id) { this.requiredFiducialId = id; }
     public int getRequiredFiducialId() { return this.requiredFiducialId; }
