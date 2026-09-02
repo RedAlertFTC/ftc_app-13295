@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.season2025.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "DecodeV1 TeleOp Blue")
+@Disabled
 public class DecodeV1TeleOpBlue extends DecodeV1Teleop
 {
 

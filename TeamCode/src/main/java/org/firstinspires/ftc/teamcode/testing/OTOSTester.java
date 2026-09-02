@@ -73,7 +73,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  */
 
 @TeleOp(name="OTOS Tester", group="Linear OpMode")
-
+@Disabled
 public class OTOSTester extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
