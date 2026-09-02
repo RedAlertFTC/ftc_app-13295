@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 @TeleOp(name = "TouchSensorTesting", group = "Sensor")
+@Disabled
 public class TouchSensorTesting extends LinearOpMode {
     DigitalChannel digitalTouch;  // Digital channel Object
 

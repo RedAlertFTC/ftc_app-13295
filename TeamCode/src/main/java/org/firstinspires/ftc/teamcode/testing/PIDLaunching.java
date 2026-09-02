@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.testing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.corelib.control.DebouncedButton;
 import org.firstinspires.ftc.teamcode.corelib.control.DisasterGamePad;
 
 @TeleOp(name="PIDLaunching_AutoTagDrive_Launcher", group="Linear OpMode")
+@Disabled
 public class PIDLaunching extends LinearOpMode {
 
     /* ========================= DRIVE MOTORS ========================= */

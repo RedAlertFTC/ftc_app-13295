@@ -41,6 +41,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.season2025.Components.AprilTagHone;
 
 @TeleOp(name="HoneTest", group="Linear OpMode")
+@Disabled
 public class HoneTest extends LinearOpMode {
 
     private Limelight3A limelight;

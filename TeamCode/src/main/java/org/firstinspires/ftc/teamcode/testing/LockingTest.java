@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 @TeleOp(name="LockingTest", group="Linear OpMode")
+@Disabled
 public class LockingTest extends LinearOpMode {
 
     private Limelight3A limelight;

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.corelib.control.DebouncedGamepadButtons;
 import org.firstinspires.ftc.teamcode.corelib.control.DisasterGamePad;
 
 @TeleOp(name = "ServoTester", group = "Linear OpMode")
+@Disabled
 public class ServoTester extends LinearOpMode
 {
     private ElapsedTime runtime = new ElapsedTime();

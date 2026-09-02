@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.season2025.Components.ShooterSequence;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 
 @Autonomous(name="V4AutoRedWall", group = "Robot")
+@Disabled
 public class V4AutoRedWall extends LinearOpMode {
 
     private SparkFunOTOS myOtos;

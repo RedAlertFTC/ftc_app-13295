@@ -68,6 +68,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
  */
 
 @TeleOp(name="Limelight Tester", group="Linear OpMode")
+@Disabled
 public class LimelightTester extends LinearOpMode {
 
 

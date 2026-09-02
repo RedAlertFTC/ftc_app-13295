@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.season2025.TeleOp;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -86,6 +87,7 @@ import org.firstinspires.ftc.teamcode.testing.PedroTesting;
  */
 
 @TeleOp(name="DecodeV1EasyOp", group="Linear OpMode")
+@Disabled
 public class DecodeV1EasyOp extends LinearOpMode
 {
 

@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.corelib.control.DebouncedButton;
 import org.firstinspires.ftc.teamcode.corelib.control.DisasterGamePad;
 
 @TeleOp(name = "Turntable Tester", group = "Testing")
+@Disabled
 public class TurntableTester extends LinearOpMode {
 
     static final double INCREMENT   = 0.5;     // amount to slew servo each CYCLE_MS cycle

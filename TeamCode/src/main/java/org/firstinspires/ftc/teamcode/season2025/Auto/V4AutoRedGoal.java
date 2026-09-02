@@ -4,6 +4,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 
 @Autonomous(name = "V4AutoRedGoal", group = "Robot")
+@Disabled
 public class V4AutoRedGoal extends LinearOpMode {
 
     private SparkFunOTOS myOtos;
