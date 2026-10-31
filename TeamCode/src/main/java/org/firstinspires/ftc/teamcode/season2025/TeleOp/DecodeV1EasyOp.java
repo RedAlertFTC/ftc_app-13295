@@ -46,7 +46,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.corelib.control.DebouncedButton;
 import org.firstinspires.ftc.teamcode.corelib.control.DisasterGamePad;
 import org.firstinspires.ftc.teamcode.season2025.Components.AprilTagHone;
-import org.firstinspires.ftc.teamcode.season2025.Components.BallAimer;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallIntake;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallLauncher;
 import org.firstinspires.ftc.teamcode.season2025.Components.BallSpooner;
@@ -56,7 +55,7 @@ import org.firstinspires.ftc.teamcode.season2025.Components.LightController;
 import org.firstinspires.ftc.teamcode.season2025.Components.ShooterSequence;
 import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 import org.firstinspires.ftc.teamcode.season2025.Components.Turntable;
-import org.firstinspires.ftc.teamcode.testing.PedroTesting;
+import org.firstinspires.ftc.teamcode.testing2025.PedroTesting;
 
 /*
  * This file contains an example of a Linear "OpMode".
