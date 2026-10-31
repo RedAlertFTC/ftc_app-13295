@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.testing.SnapToGoal;
-
 public class Chassis {
     private double maxPower = 1.0;
     private double maxSpeed = 1.0;  // make this slower for outreaches

@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.testing;
+package org.firstinspires.ftc.teamcode.testing2026;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -67,10 +67,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Limelight Tester", group="Linear OpMode")
-@Disabled
-public class LimelightTester extends LinearOpMode {
-
+@TeleOp(name="Limelight Telemetry", group="Linear OpMode")
+//@Disabled
+public class LimelightTelemetry extends LinearOpMode {
 
     private Limelight3A limelight;
     // Declare OpMode members for each of the 4 motors.
@@ -82,8 +81,6 @@ public class LimelightTester extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
-
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         telemetry.setMsTransmissionInterval(11);
@@ -97,10 +94,10 @@ public class LimelightTester extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
-        backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
-        frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
-        backRightDrive = hardwareMap.get(DcMotor.class, "br");
+        frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
+        backLeftDrive = hardwareMap.get(DcMotor.class, "back_left_drive");
+        frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
+        backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -176,12 +173,6 @@ public class LimelightTester extends LinearOpMode {
             backLeftDrive.setPower(backLeftPower);
             backRightDrive.setPower(backRightPower);
 
-            // Show the elapsed game time and wheel power.
-//            telemetry.addData("Status", "Run Time: " + runtime.toString());
-//            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-//            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
-            telemetry.update();
-
             LLResult result = limelight.getLatestResult();
             if (result != null) {
                 if (result.isValid()) {
@@ -194,7 +185,10 @@ public class LimelightTester extends LinearOpMode {
             }
             telemetry.addLine("No tag detected");
 
-
-
+            // Show the elapsed game time and wheel power.
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
+            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+            telemetry.update();
         }
     }}

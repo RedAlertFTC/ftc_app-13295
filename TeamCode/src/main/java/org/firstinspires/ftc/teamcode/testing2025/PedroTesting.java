@@ -1,8 +1,4 @@
-package org.firstinspires.ftc.teamcode.testing;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-import android.nfc.TagLostException;
+package org.firstinspires.ftc.teamcode.testing2025;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;

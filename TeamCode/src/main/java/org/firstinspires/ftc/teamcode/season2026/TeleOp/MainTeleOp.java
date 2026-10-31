@@ -3,15 +3,20 @@ package org.firstinspires.ftc.teamcode.season2026.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="MainTeleOp", group="Linear OpMode")
-public class MainTeleOp extends LinearOpMode {
+
+public class MainTeleOp extends LinearOpMode
+{
+
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeftDrive = null;
     private DcMotor backLeftDrive = null;
     private DcMotor frontRightDrive = null;
     private DcMotor backRightDrive = null;
+    private DcMotor intakeMotor = null;
 
     @Override
     public void runOpMode() {
@@ -22,6 +27,8 @@ public class MainTeleOp extends LinearOpMode {
         backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
         frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
         backRightDrive = hardwareMap.get(DcMotor.class, "br");
+
+        intakeMotor = hardwareMap.get(DcMotor.class,"intakeMotor");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -38,6 +45,8 @@ public class MainTeleOp extends LinearOpMode {
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -46,7 +55,8 @@ public class MainTeleOp extends LinearOpMode {
         runtime.reset();
 
 
-        while (opModeIsActive()) {
+        while (opModeIsActive())
+        {
             double max;
 
 
@@ -73,6 +83,14 @@ public class MainTeleOp extends LinearOpMode {
             }
 
 
+            if (gamepad1.a){
+                //start intake
+                intakeMotor.setPower(800);
+            }
+            else if(!gamepad1.a){
+                //stop intake
+                intakeMotor.setPower(0);
+            }
 
             // Send calculated power to wheels
             frontLeftDrive.setPower(frontLeftPower);
