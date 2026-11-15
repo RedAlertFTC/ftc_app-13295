@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.robotcontroller.external.samples.externalhardware.mechanisms;
+package org.firstinspires.ftc.teamcode.corelib.vision;
 
 import android.util.Size;
 
@@ -11,8 +11,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +52,10 @@ public class AprilTagWebcam {
         return  detectedTags;
     }
 
-    public void displayDetectionTelemetry(AprilTagDetection detectedId){
-        if (detectedId == null) { return; }
+    public void displayDetectionTelemetry(AprilTagDetection detection){
+        // SDK 12: id/metadata/center only exist on single-tag detections
+        if (!(detection instanceof AprilTagSingleDetection)) { return; }
+        AprilTagSingleDetection detectedId = (AprilTagSingleDetection) detection;
 
         if (detectedId.metadata != null) {
             telemetry.addLine(String.format("\n==== (ID %d) %s", detectedId.id, detectedId.metadata.name));
@@ -67,10 +69,10 @@ public class AprilTagWebcam {
 
     }
 
-    public AprilTagDetection getTagBySpecificID(int id){
+    public AprilTagSingleDetection getTagBySpecificID(int id){
         for (AprilTagDetection detection : detectedTags){
-            if (detection.id == id){
-                return detection;
+            if (detection instanceof AprilTagSingleDetection && ((AprilTagSingleDetection) detection).id == id){
+                return (AprilTagSingleDetection) detection;
             }
         }
         return null;
