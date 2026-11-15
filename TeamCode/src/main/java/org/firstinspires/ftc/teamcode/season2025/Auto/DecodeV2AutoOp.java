@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.season2025.FeatureFlags;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +69,7 @@ public class DecodeV2AutoOp extends LinearOpMode {
     private int goalAprilTagId = -1;
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;
-    private AprilTagDetection desiredTag = null;
+    private AprilTagSingleDetection desiredTag = null;
 
     private BallLauncher _ballLauncher;
     private Turntable _turntable;
@@ -224,7 +225,10 @@ public class DecodeV2AutoOp extends LinearOpMode {
 
         // Look for a valid tag
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        for (AprilTagDetection detection : currentDetections) {
+        for (AprilTagDetection rawDetection : currentDetections) {
+            // SDK 12: id/metadata/center only exist on single-tag detections (clusters are skipped)
+            if (!(rawDetection instanceof AprilTagSingleDetection)) continue;
+            AprilTagSingleDetection detection = (AprilTagSingleDetection) rawDetection;
             if (detection.metadata != null && (goalAprilTagId < 0 || detection.id == goalAprilTagId)) {
                 targetFound = true;
                 desiredTag = detection;
